@@ -30,3 +30,26 @@
   background: var(--accent-dim);
   border-color: var(--accent);
 }
+
+/* ---- Phase 3: sliding indicator ---- */
+
+.category-tabs {
+  position: relative;
+}
+
+.category-tab-indicator {
+  position: absolute;
+  top: 0;
+  bottom: var(--space-2);
+  border-radius: 999px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  transition: left var(--dur-base) var(--ease-spring), width var(--dur-base) var(--ease-spring);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.category-tab {
+  position: relative;
+  z-index: 1;
+}
