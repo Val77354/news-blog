@@ -19,3 +19,14 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-3);
 }
+
+/* ---- Phase 3: skeleton loading ---- */
+
+.skeleton-card {
+  height: 220px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(100deg, var(--bg-elevated) 30%, #232327 50%, var(--bg-elevated) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}

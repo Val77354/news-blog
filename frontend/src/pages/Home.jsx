@@ -61,7 +61,13 @@ export default function Home() {
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
       <CountryFilter selected={selectedCountries} onChange={setSelectedCountries} />
 
-      {status === 'loading' && <p className="state-message">Loading posts…</p>}
+      {status === 'loading' && (
+        <div className="post-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card" />
+          ))}
+        </div>
+      )}
       {status === 'error' && <p className="state-message error">Couldn't load posts: {error}</p>}
       {status === 'ready' && posts.length === 0 && (
         <p className="state-message">No posts match these filters.</p>
