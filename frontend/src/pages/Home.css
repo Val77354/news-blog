@@ -1,0 +1,21 @@
+.hero {
+  padding: var(--space-5) 0 var(--space-4);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-4);
+}
+
+.hero h1 {
+  font-size: 3rem;
+  max-width: 640px;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  max-width: 520px;
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
