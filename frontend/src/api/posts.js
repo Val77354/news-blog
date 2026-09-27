@@ -16,8 +16,12 @@ async function handleResponse(res) {
   return res.json()
 }
 
-export function listPosts() {
-  return fetch(`${API_URL}/posts`).then(handleResponse)
+export function listPosts({ category, countries } = {}) {
+  const params = new URLSearchParams()
+  if (category) params.set('category', category)
+  if (countries && countries.length > 0) params.set('countries', countries.join(','))
+  const qs = params.toString()
+  return fetch(`${API_URL}/posts${qs ? `?${qs}` : ''}`).then(handleResponse)
 }
 
 export function getPost(id) {
