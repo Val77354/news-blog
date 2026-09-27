@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import { getPost, deletePost } from '../api/posts'
 import './PostDetail.css'
 
 export default function PostDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [post, setPost] = useState(null)
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
+  const [showToast, setShowToast] = useState(Boolean(location.state?.justSaved))
 
   useEffect(() => {
     setStatus('loading')
@@ -22,6 +24,12 @@ export default function PostDetail() {
         setStatus('error')
       })
   }, [id])
+
+  useEffect(() => {
+    if (!showToast) return
+    const timer = setTimeout(() => setShowToast(false), 2500)
+    return () => clearTimeout(timer)
+  }, [showToast])
 
   async function handleDelete() {
     if (!window.confirm('Delete this post? This cannot be undone.')) return
@@ -57,6 +65,14 @@ export default function PostDetail() {
 
   return (
     <div className="page container post-detail">
+      {showToast && (
+        <div className="save-toast">
+          <svg viewBox="0 0 16 16" className="save-toast-check">
+            <polyline points="3,8 7,12 13,4" />
+          </svg>
+          {location.state?.message || 'Saved!'}
+        </div>
+      )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
         <span className="country-badge">{post.country}</span>

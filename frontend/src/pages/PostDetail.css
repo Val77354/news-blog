@@ -24,3 +24,29 @@
   border-top: 1px solid var(--border);
   max-width: 680px;
 }
+
+/* ---- Phase 3: save-success toast ---- */
+
+.save-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--accent);
+  color: #12100e;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  margin-bottom: var(--space-3);
+  animation: pulse-scale var(--dur-base) var(--ease-spring);
+}
+
+.save-toast-check {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #12100e;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

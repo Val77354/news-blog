@@ -24,7 +24,7 @@ export default function EditPost() {
 
   async function handleSubmit(values) {
     await updatePost(id, values)
-    navigate(`/posts/${id}`)
+    navigate(`/posts/${id}`, { state: { justSaved: true, message: 'Changes saved!' } })
   }
 
   if (status === 'loading') {
