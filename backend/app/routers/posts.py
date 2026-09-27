@@ -10,8 +10,19 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.get("", response_model=list[schemas.PostOut])
-def list_posts(db: Session = Depends(get_db)):
-    return db.query(models.Post).order_by(models.Post.created_at.desc()).all()
+def list_posts(
+    category: str | None = None,
+    countries: str | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.Post)
+    if category:
+        query = query.filter(models.Post.category == category)
+    if countries:
+        country_list = [c.strip() for c in countries.split(",") if c.strip()]
+        if country_list:
+            query = query.filter(models.Post.country.in_(country_list))
+    return query.order_by(models.Post.created_at.desc()).all()
 
 
 @router.get("/{post_id}", response_model=schemas.PostOut)
