@@ -8,6 +8,7 @@ class PostBase(BaseModel):
     content: str
     author: str
     category: str
+    country: str
 
 
 class PostCreate(PostBase):

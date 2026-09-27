@@ -14,6 +14,7 @@ class Post(Base):
     content: Mapped[str] = mapped_column(Text)
     author: Mapped[str] = mapped_column(String(100))
     category: Mapped[str] = mapped_column(String(50))
+    country: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
