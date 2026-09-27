@@ -6,7 +6,7 @@ and a React (Vite) frontend with a dark editorial design.
 ## Stack
 
 - **Backend:** Python, FastAPI, Uvicorn, SQLAlchemy 2.0 (typed ORM), Pydantic v2, SQLite
-- **Frontend:** React 18, Vite, React Router v6, plain CSS
+- **Frontend:** React 19, Vite, React Router v7, plain CSS
 
 ## Project structure
 
