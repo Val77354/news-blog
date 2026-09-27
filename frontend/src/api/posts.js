@@ -5,7 +5,8 @@ async function handleResponse(res) {
     let detail = res.statusText
     try {
       const data = await res.json()
-      detail = data.detail || detail
+      const d = data.detail
+      detail = Array.isArray(d) ? d.map((e) => e.msg).join(', ') : (d || detail)
     } catch {
       // response had no JSON body
     }

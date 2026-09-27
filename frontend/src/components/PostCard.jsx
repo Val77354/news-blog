@@ -15,7 +15,7 @@ export default function PostCard({ post }) {
 
   return (
     <Link to={`/posts/${post.id}`} className="post-card">
-      <span className="post-card-category">{post.category}</span>
+      <span className="category-pill">{post.category}</span>
       <h2>{post.title}</h2>
       <p className="post-card-excerpt">{excerpt(post.content)}</p>
       <div className="post-card-meta">

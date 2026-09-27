@@ -57,7 +57,7 @@ export default function PostDetail() {
 
   return (
     <div className="page container post-detail">
-      <span className="post-card-category">{post.category}</span>
+      <span className="category-pill">{post.category}</span>
       <h1>{post.title}</h1>
       <div className="post-detail-meta state-message">
         {post.author} · {date}
