@@ -118,7 +118,7 @@ a:hover {
   border-color: transparent;
 }
 
-input,
+input:not([type='checkbox']):not([type='radio']):not([type='file']),
 textarea,
 select {
   width: 100%;
@@ -133,7 +133,8 @@ select {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -173,6 +174,7 @@ textarea:focus {
 .badge-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-1);
   margin-bottom: var(--space-2);
 }

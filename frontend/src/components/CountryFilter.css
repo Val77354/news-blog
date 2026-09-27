@@ -27,11 +27,7 @@
   cursor: pointer;
 }
 
-/* index.css applies width/padding/border/background to every <input> for
-   the post-form's text fields — reset those properties specifically for
-   this checkbox so it renders as a normal checkbox, not a filled box. */
 .country-filter-item input[type='checkbox'] {
-  all: revert;
   accent-color: var(--accent);
   cursor: pointer;
 }

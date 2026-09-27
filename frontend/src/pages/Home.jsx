@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { listPosts } from '../api/posts'
 import PostCard from '../components/PostCard'
 import CategoryTabs from '../components/CategoryTabs'
@@ -9,21 +10,46 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
-  const [activeCategory, setActiveCategory] = useState(null)
-  const [selectedCountries, setSelectedCountries] = useState([])
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const activeCategory = searchParams.get('category')
+  const countriesParam = searchParams.get('countries')
+  const selectedCountries = countriesParam ? countriesParam.split(',') : []
+
+  function setActiveCategory(value) {
+    const next = new URLSearchParams(searchParams)
+    if (value) next.set('category', value)
+    else next.delete('category')
+    setSearchParams(next)
+  }
+
+  function setSelectedCountries(values) {
+    const next = new URLSearchParams(searchParams)
+    if (values.length > 0) next.set('countries', values.join(','))
+    else next.delete('countries')
+    setSearchParams(next)
+  }
 
   useEffect(() => {
+    let ignore = false
     setStatus('loading')
     listPosts({ category: activeCategory, countries: selectedCountries })
       .then((data) => {
-        setPosts(data)
-        setStatus('ready')
+        if (!ignore) {
+          setPosts(data)
+          setStatus('ready')
+        }
       })
       .catch((err) => {
-        setError(err.message)
-        setStatus('error')
+        if (!ignore) {
+          setError(err.message)
+          setStatus('error')
+        }
       })
-  }, [activeCategory, selectedCountries])
+    return () => {
+      ignore = true
+    }
+  }, [activeCategory, countriesParam])
 
   return (
     <div className="page container">
