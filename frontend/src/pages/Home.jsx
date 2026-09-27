@@ -69,8 +69,8 @@ export default function Home() {
 
       {status === 'ready' && posts.length > 0 && (
         <div className="post-grid">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+          {posts.map((post, index) => (
+            <PostCard key={post.id} post={post} index={index} />
           ))}
         </div>
       )}

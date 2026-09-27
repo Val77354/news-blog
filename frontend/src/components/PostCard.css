@@ -28,3 +28,33 @@
   font-size: 0.85rem;
   color: var(--text-dim);
 }
+
+/* ---- Phase 3: hover glow + cursor spotlight ---- */
+
+.post-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.post-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    220px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--accent-dim),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.post-card:hover::before {
+  opacity: 1;
+}
+
+.post-card:hover {
+  box-shadow: 0 0 0 1px var(--accent), 0 12px 24px -8px var(--accent-dim);
+}
