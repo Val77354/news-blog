@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
 import { listPosts } from '../api/posts'
 import PostCard from '../components/PostCard'
+import CategoryTabs from '../components/CategoryTabs'
+import CountryFilter from '../components/CountryFilter'
 import './Home.css'
 
 export default function Home() {
   const [posts, setPosts] = useState([])
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
+  const [activeCategory, setActiveCategory] = useState(null)
+  const [selectedCountries, setSelectedCountries] = useState([])
 
   useEffect(() => {
-    listPosts()
+    setStatus('loading')
+    listPosts({ category: activeCategory, countries: selectedCountries })
       .then((data) => {
         setPosts(data)
         setStatus('ready')
@@ -18,7 +23,7 @@ export default function Home() {
         setError(err.message)
         setStatus('error')
       })
-  }, [])
+  }, [activeCategory, selectedCountries])
 
   return (
     <div className="page container">
@@ -27,10 +32,13 @@ export default function Home() {
         <p>Reporting on technology, business, science, and the world beyond your feed.</p>
       </header>
 
+      <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
+      <CountryFilter selected={selectedCountries} onChange={setSelectedCountries} />
+
       {status === 'loading' && <p className="state-message">Loading posts…</p>}
       {status === 'error' && <p className="state-message error">Couldn't load posts: {error}</p>}
       {status === 'ready' && posts.length === 0 && (
-        <p className="state-message">No posts yet — create the first one.</p>
+        <p className="state-message">No posts match these filters.</p>
       )}
 
       {status === 'ready' && posts.length > 0 && (
