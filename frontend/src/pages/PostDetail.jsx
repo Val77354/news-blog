@@ -71,6 +71,7 @@ export default function PostDetail() {
           Delete
         </button>
       </div>
+      {error && <p className="state-message error">{error}</p>}
     </div>
   )
 }
