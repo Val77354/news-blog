@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { CATEGORIES, COUNTRIES } from '../constants'
 import './PostForm.css'
 
-const EMPTY = { title: '', content: '', author: '', category: '' }
+const EMPTY = { title: '', content: '', author: '', category: '', country: '' }
 
 export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel = 'Publish' }) {
   const [values, setValues] = useState(initialValues)
@@ -37,7 +38,29 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
         </label>
         <label>
           Category
-          <input value={values.category} onChange={update('category')} required />
+          <select value={values.category} onChange={update('category')} required>
+            <option value="" disabled>
+              Select a category
+            </option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Country
+          <select value={values.country} onChange={update('country')} required>
+            <option value="" disabled>
+              Select a country
+            </option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
       <label>

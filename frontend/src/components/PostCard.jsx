@@ -15,7 +15,10 @@ export default function PostCard({ post }) {
 
   return (
     <Link to={`/posts/${post.id}`} className="post-card">
-      <span className="category-pill">{post.category}</span>
+      <div className="badge-row">
+        <span className="category-pill">{post.category}</span>
+        <span className="country-badge">{post.country}</span>
+      </div>
       <h2>{post.title}</h2>
       <p className="post-card-excerpt">{excerpt(post.content)}</p>
       <div className="post-card-meta">

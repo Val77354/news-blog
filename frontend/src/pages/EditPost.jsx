@@ -52,6 +52,7 @@ export default function EditPost() {
           content: post.content,
           author: post.author,
           category: post.category,
+          country: post.country,
         }}
         onSubmit={handleSubmit}
         submitLabel="Save Changes"
