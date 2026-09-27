@@ -18,9 +18,15 @@ export default function CountryFilter({ selected, onChange }) {
           <label key={country} className="country-filter-item">
             <input
               type="checkbox"
+              className="country-filter-checkbox"
               checked={selected.includes(country)}
               onChange={() => toggle(country)}
             />
+            <span className="country-filter-box" aria-hidden="true">
+              <svg viewBox="0 0 16 16" className="country-filter-check">
+                <polyline points="3,8 7,12 13,4" />
+              </svg>
+            </span>
             {country}
           </label>
         ))}
