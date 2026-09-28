@@ -17,7 +17,7 @@ export default function Navbar() {
     <nav className={`navbar${scrolled ? ' navbar-scrolled' : ''}`}>
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          The Daily<span>Wire</span>
+          The Daily<span>Current</span>
         </Link>
         <Link to="/posts/new" className="btn btn-primary">
           New Post
