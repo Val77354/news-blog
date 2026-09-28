@@ -1,4 +1,4 @@
-import { COUNTRIES } from '../constants'
+import { COUNTRIES, COUNTRY_FLAGS } from '../constants'
 import './CountryFilter.css'
 
 export default function CountryFilter({ selected, onChange }) {
@@ -27,7 +27,7 @@ export default function CountryFilter({ selected, onChange }) {
                 <polyline points="3,8 7,12 13,4" />
               </svg>
             </span>
-            {country}
+            {COUNTRY_FLAGS[country]} {country}
           </label>
         ))}
       </div>

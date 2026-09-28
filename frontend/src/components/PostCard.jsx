@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import { API_URL } from '../api/posts'
+import { COUNTRY_FLAGS } from '../constants'
 import './PostCard.css'
 
 function excerpt(content, length = 140) {
@@ -42,7 +43,9 @@ export default function PostCard({ post, index = 0 }) {
       )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
-        <span className="country-badge">{post.country}</span>
+        <span className="country-badge">
+          {COUNTRY_FLAGS[post.country]} {post.country}
+        </span>
       </div>
       <h2>{post.title}</h2>
       <p className="post-card-excerpt">{excerpt(post.content)}</p>

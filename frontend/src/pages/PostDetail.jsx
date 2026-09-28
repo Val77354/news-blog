@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import { API_URL, getPost, deletePost } from '../api/posts'
+import { COUNTRY_FLAGS } from '../constants'
 import './PostDetail.css'
 
 export default function PostDetail() {
@@ -93,7 +94,9 @@ export default function PostDetail() {
       )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
-        <span className="country-badge">{post.country}</span>
+        <span className="country-badge">
+          {COUNTRY_FLAGS[post.country]} {post.country}
+        </span>
       </div>
       <h1>{post.title}</h1>
       <div className="post-detail-meta state-message">
