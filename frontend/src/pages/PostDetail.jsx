@@ -11,6 +11,7 @@ export default function PostDetail() {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [showToast, setShowToast] = useState(Boolean(location.state?.justSaved))
+  const [toastMessage] = useState(location.state?.message || 'Saved!')
 
   useEffect(() => {
     setStatus('loading')
@@ -30,6 +31,13 @@ export default function PostDetail() {
     const timer = setTimeout(() => setShowToast(false), 2500)
     return () => clearTimeout(timer)
   }, [showToast])
+
+  useEffect(() => {
+    if (location.state?.justSaved) {
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleDelete() {
     if (!window.confirm('Delete this post? This cannot be undone.')) return
@@ -70,7 +78,7 @@ export default function PostDetail() {
           <svg viewBox="0 0 16 16" className="save-toast-check">
             <polyline points="3,8 7,12 13,4" />
           </svg>
-          {location.state?.message || 'Saved!'}
+          {toastMessage}
         </div>
       )}
       <div className="badge-row">
