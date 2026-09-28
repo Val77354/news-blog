@@ -1,16 +1,35 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CATEGORIES, COUNTRIES } from '../constants'
+import { API_URL } from '../api/posts'
+import { uploadImage } from '../api/uploads'
 import './PostForm.css'
 
-const EMPTY = { title: '', content: '', author: '', category: '', country: '' }
+const EMPTY = { title: '', content: '', author: '', category: '', country: '', image_url: null }
 
 export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel = 'Publish' }) {
   const [values, setValues] = useState(initialValues)
+  const [imageFile, setImageFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(
+    initialValues.image_url ? `${API_URL}${initialValues.image_url}` : null,
+  )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
+
   function update(field) {
     return (e) => setValues((v) => ({ ...v, [field]: e.target.value }))
+  }
+
+  function handleFileChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setImageFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
   }
 
   async function handleSubmit(e) {
@@ -18,7 +37,12 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
     setSubmitting(true)
     setError(null)
     try {
-      await onSubmit(values)
+      let imageUrl = values.image_url ?? null
+      if (imageFile) {
+        const result = await uploadImage(imageFile)
+        imageUrl = result.url
+      }
+      await onSubmit({ ...values, image_url: imageUrl })
     } catch (err) {
       setError(err.message)
       setSubmitting(false)
@@ -67,6 +91,21 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
         Content
         <textarea value={values.content} onChange={update('content')} required />
       </label>
+      <div className="post-form-image-field">
+        <span className="post-form-image-caption">Image (optional)</span>
+        <div className="post-form-image-picker">
+          {previewUrl && <img src={previewUrl} alt="" className="post-form-image-preview" />}
+          <label className="post-form-file-button">
+            {previewUrl ? 'Change image' : 'Choose image'}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="post-form-file-input"
+              onChange={handleFileChange}
+            />
+          </label>
+        </div>
+      </div>
       <div className="post-form-actions">
         <button className="btn btn-primary" type="submit" disabled={submitting}>
           {submitting ? 'Saving…' : submitLabel}
