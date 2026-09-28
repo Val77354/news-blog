@@ -9,6 +9,7 @@ class PostBase(BaseModel):
     author: str
     category: str
     country: str
+    image_url: str | None = None
 
 
 class PostCreate(PostBase):
