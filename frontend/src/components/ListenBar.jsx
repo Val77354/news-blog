@@ -14,9 +14,9 @@ export default function ListenBar() {
   }, [])
 
   const text = latest ? `${latest.title}. ${latest.content}` : ''
-  const { speaking, toggle } = useSpeech(text)
+  const { speaking, toggle, supported } = useSpeech(text)
 
-  if (!latest) return null
+  if (!latest || !supported) return null
 
   return (
     <div className="listen-bar">

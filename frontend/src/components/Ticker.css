@@ -58,3 +58,18 @@
     display: none;
   }
 }
+
+/* Final-review fixes:
+   1. The duplicate (aria-hidden) row above is now plain <span> elements,
+      not links — this rule stops it from showing a hover-underline for
+      something that was never clickable in the first place. */
+.ticker-content[aria-hidden='true'] .ticker-item {
+  pointer-events: none;
+}
+
+/* 2. The -50% loop in .ticker-track (defined earlier in this file) only
+      lines up because this flex item can't shrink below its min-content
+      width — two full copies of the content, since .ticker-content
+      children are flex-shrink:0 and text is nowrap. Do not add
+      min-width:0 or any overflow handling to .ticker-track — either
+      would silently break the seamless loop into a visible jump. */

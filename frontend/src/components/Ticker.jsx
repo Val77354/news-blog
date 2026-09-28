@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { listPosts } from '../api/posts'
 import './Ticker.css'
 
 export default function Ticker() {
   const [posts, setPosts] = useState([])
+  const { pathname } = useLocation()
 
   useEffect(() => {
     listPosts()
       .then((data) => setPosts(data.slice(0, 5)))
       .catch(() => setPosts([]))
-  }, [])
+  }, [pathname])
 
   if (posts.length === 0) return null
 
@@ -27,9 +28,9 @@ export default function Ticker() {
         </div>
         <div className="ticker-content" aria-hidden="true">
           {posts.map((post) => (
-            <Link key={post.id} to={`/posts/${post.id}`} className="ticker-item">
+            <span key={post.id} className="ticker-item">
               {post.title}
-            </Link>
+            </span>
           ))}
         </div>
       </div>

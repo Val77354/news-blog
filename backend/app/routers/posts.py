@@ -10,7 +10,7 @@ from .uploads import UPLOAD_DIR
 
 
 def _delete_image_file(image_url: str | None) -> None:
-    if not image_url:
+    if not image_url or image_url.startswith("http"):
         return
     name = Path(image_url).name
     if not name:
