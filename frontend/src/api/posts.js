@@ -1,5 +1,10 @@
 export const API_URL = 'http://localhost:8000'
 
+export function resolveImageUrl(imageUrl) {
+  if (!imageUrl) return null
+  return imageUrl.startsWith('http') ? imageUrl : `${API_URL}${imageUrl}`
+}
+
 async function handleResponse(res) {
   if (!res.ok) {
     let detail = res.statusText

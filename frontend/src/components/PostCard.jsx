@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
-import { API_URL } from '../api/posts'
+import { resolveImageUrl } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
 import './PostCard.css'
 
@@ -33,7 +33,7 @@ export default function PostCard({ post, index = 0 }) {
     >
       {post.image_url && (
         <img
-          src={`${API_URL}${post.image_url}`}
+          src={resolveImageUrl(post.image_url)}
           alt=""
           className="post-card-image"
           onError={(e) => {

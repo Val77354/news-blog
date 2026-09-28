@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CATEGORIES, COUNTRIES } from '../constants'
-import { API_URL } from '../api/posts'
+import { resolveImageUrl } from '../api/posts'
 import { uploadImage } from '../api/uploads'
 import './PostForm.css'
 
@@ -9,9 +9,7 @@ const EMPTY = { title: '', content: '', author: '', category: '', country: '', i
 export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel = 'Publish' }) {
   const [values, setValues] = useState(initialValues)
   const [imageFile, setImageFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(
-    initialValues.image_url ? `${API_URL}${initialValues.image_url}` : null,
-  )
+  const [previewUrl, setPreviewUrl] = useState(resolveImageUrl(initialValues.image_url))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 

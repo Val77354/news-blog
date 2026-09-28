@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
-import { API_URL, getPost, deletePost } from '../api/posts'
+import { resolveImageUrl, getPost, deletePost } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
 import './PostDetail.css'
 
@@ -84,7 +84,7 @@ export default function PostDetail() {
       )}
       {post.image_url && (
         <img
-          src={`${API_URL}${post.image_url}`}
+          src={resolveImageUrl(post.image_url)}
           alt=""
           className="post-detail-image"
           onError={(e) => {
