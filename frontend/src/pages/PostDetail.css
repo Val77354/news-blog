@@ -50,3 +50,15 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* ---- Phase 2: hero image ---- */
+
+.post-detail-image {
+  display: block;
+  width: 100%;
+  max-width: 680px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: var(--space-3);
+}

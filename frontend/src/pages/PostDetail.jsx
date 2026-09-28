@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
-import { getPost, deletePost } from '../api/posts'
+import { API_URL, getPost, deletePost } from '../api/posts'
 import './PostDetail.css'
 
 export default function PostDetail() {
@@ -80,6 +80,9 @@ export default function PostDetail() {
           </svg>
           {toastMessage}
         </div>
+      )}
+      {post.image_url && (
+        <img src={`${API_URL}${post.image_url}`} alt="" className="post-detail-image" />
       )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
