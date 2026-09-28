@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CATEGORIES, COUNTRIES } from '../constants'
+import { CATEGORIES, COUNTRIES, COUNTRY_FLAGS } from '../constants'
 import { resolveImageUrl } from '../api/posts'
 import { uploadImage } from '../api/uploads'
 import './PostForm.css'
@@ -81,7 +81,7 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
             </option>
             {COUNTRIES.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {COUNTRY_FLAGS[c]} {c}
               </option>
             ))}
           </select>
