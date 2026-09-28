@@ -4,6 +4,7 @@ import { listPosts } from '../api/posts'
 import PostCard from '../components/PostCard'
 import CategoryTabs from '../components/CategoryTabs'
 import CountryFilter from '../components/CountryFilter'
+import ListenBar from '../components/ListenBar'
 import './Home.css'
 
 export default function Home() {
@@ -65,6 +66,8 @@ export default function Home() {
         <span className="hero-underline" />
         <p>Reporting on technology, business, science, and the world beyond your feed.</p>
       </header>
+
+      <ListenBar />
 
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
       <CountryFilter selected={selectedCountries} onChange={setSelectedCountries} />
