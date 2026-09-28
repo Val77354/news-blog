@@ -1,10 +1,19 @@
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
+
+
+def _delete_image_file(image_url: str | None) -> None:
+    if not image_url:
+        return
+    file_path = Path("uploads") / Path(image_url).name
+    file_path.unlink(missing_ok=True)
+
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -47,6 +56,8 @@ def update_post(post_id: int, post: schemas.PostUpdate, db: Session = Depends(ge
     db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if db_post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    if post.image_url != db_post.image_url:
+        _delete_image_file(db_post.image_url)
     for field, value in post.model_dump().items():
         setattr(db_post, field, value)
     db_post.updated_at = datetime.now(timezone.utc)
@@ -60,6 +71,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if db_post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    _delete_image_file(db_post.image_url)
     db.delete(db_post)
     db.commit()
     return None
