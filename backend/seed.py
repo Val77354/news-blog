@@ -18,6 +18,7 @@ SAMPLE_POSTS = [
         "author": "Emma Whitfield",
         "category": "Technology",
         "country": "United Kingdom",
+        "image_url": "https://picsum.photos/seed/newsblog-1/800/450",
     },
     {
         "title": "Paris Hosts Emergency Summit on Mediterranean Migration Routes",
@@ -33,6 +34,7 @@ SAMPLE_POSTS = [
         "author": "Marc Dubois",
         "category": "World",
         "country": "France",
+        "image_url": "https://picsum.photos/seed/newsblog-2/800/450",
     },
     {
         "title": "German Manufacturers Warn of Energy Cost Squeeze Heading Into Winter",
@@ -47,6 +49,7 @@ SAMPLE_POSTS = [
         "author": "Klara Hoffmann",
         "category": "Business",
         "country": "Germany",
+        "image_url": "https://picsum.photos/seed/newsblog-3/800/450",
     },
     {
         "title": "Italian Researchers Track Volcanic Activity With New Seismic Network",
@@ -61,6 +64,7 @@ SAMPLE_POSTS = [
         "author": "Giulia Romano",
         "category": "Science",
         "country": "Italy",
+        "image_url": "https://picsum.photos/seed/newsblog-4/800/450",
     },
     {
         "title": "Spanish League Clubs Push Back Against Expanded Tournament Calendar",
@@ -75,6 +79,7 @@ SAMPLE_POSTS = [
         "author": "Javier Moreno",
         "category": "Sports",
         "country": "Spain",
+        "image_url": "https://picsum.photos/seed/newsblog-5/800/450",
     },
     {
         "title": "Dutch Ports Expand Capacity Amid Shifting European Trade Routes",
@@ -89,6 +94,7 @@ SAMPLE_POSTS = [
         "author": "Sanne de Vries",
         "category": "World",
         "country": "Netherlands",
+        "image_url": "https://picsum.photos/seed/newsblog-6/800/450",
     },
     {
         "title": "Polish Manufacturing Rebounds as Nearshoring Trend Accelerates",
@@ -103,6 +109,7 @@ SAMPLE_POSTS = [
         "author": "Tomasz Kowalski",
         "category": "Business",
         "country": "Poland",
+        "image_url": "https://picsum.photos/seed/newsblog-7/800/450",
     },
     {
         "title": "Swedish Battery Startup Secures Funding for Gigafactory Expansion",
@@ -117,6 +124,7 @@ SAMPLE_POSTS = [
         "author": "Elin Berg",
         "category": "Technology",
         "country": "Sweden",
+        "image_url": "https://picsum.photos/seed/newsblog-8/800/450",
     },
     {
         "title": "Reconstruction Efforts Continue in Eastern Regions Amid Funding Gaps",
@@ -131,6 +139,7 @@ SAMPLE_POSTS = [
         "author": "Olena Petrenko",
         "category": "World",
         "country": "Ukraine",
+        "image_url": "https://picsum.photos/seed/newsblog-9/800/450",
     },
     {
         "title": "Greek Marine Biologists Document Rare Coral Recovery in Aegean Sea",
@@ -145,6 +154,7 @@ SAMPLE_POSTS = [
         "author": "Dimitra Alexiou",
         "category": "Science",
         "country": "Greece",
+        "image_url": "https://picsum.photos/seed/newsblog-10/800/450",
     },
     {
         "title": "Portuguese Youth Academies Draw International Scouting Interest",
@@ -159,6 +169,7 @@ SAMPLE_POSTS = [
         "author": "Rui Fernandes",
         "category": "Sports",
         "country": "Portugal",
+        "image_url": "https://picsum.photos/seed/newsblog-11/800/450",
     },
     {
         "title": "Swiss Banks Tighten Lending Standards Amid Regional Uncertainty",
@@ -173,6 +184,7 @@ SAMPLE_POSTS = [
         "author": "Lukas Meier",
         "category": "Business",
         "country": "Switzerland",
+        "image_url": "https://picsum.photos/seed/newsblog-12/800/450",
     },
 ]
 
