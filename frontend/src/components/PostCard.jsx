@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
+import { API_URL } from '../api/posts'
 import './PostCard.css'
 
 function excerpt(content, length = 140) {
@@ -29,6 +30,9 @@ export default function PostCard({ post, index = 0 }) {
       ref={ref}
       onMouseMove={handleMouseMove}
     >
+      {post.image_url && (
+        <img src={`${API_URL}${post.image_url}`} alt="" className="post-card-image" />
+      )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
         <span className="country-badge">{post.country}</span>

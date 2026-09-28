@@ -68,3 +68,19 @@
 .post-card:hover {
   translate: 0 -2px;
 }
+
+/* ---- Phase 2: card image ---- */
+
+.post-card-image {
+  display: block;
+  width: calc(100% + var(--space-3) * 2);
+  margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) var(--space-2);
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.post-card:hover .post-card-image {
+  transform: scale(1.05);
+}
