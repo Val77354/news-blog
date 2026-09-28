@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import Ticker from './components/Ticker'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import PostDetail from './pages/PostDetail'
@@ -8,6 +9,7 @@ import EditPost from './pages/EditPost'
 export default function App() {
   return (
     <>
+      <Ticker />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
