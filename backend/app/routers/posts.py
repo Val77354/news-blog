@@ -6,13 +6,19 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
+from .uploads import UPLOAD_DIR
 
 
 def _delete_image_file(image_url: str | None) -> None:
     if not image_url:
         return
-    file_path = Path("uploads") / Path(image_url).name
-    file_path.unlink(missing_ok=True)
+    name = Path(image_url).name
+    if not name:
+        return
+    try:
+        (UPLOAD_DIR / name).unlink(missing_ok=True)
+    except OSError:
+        pass
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])

@@ -31,7 +31,14 @@ export default function PostCard({ post, index = 0 }) {
       onMouseMove={handleMouseMove}
     >
       {post.image_url && (
-        <img src={`${API_URL}${post.image_url}`} alt="" className="post-card-image" />
+        <img
+          src={`${API_URL}${post.image_url}`}
+          alt=""
+          className="post-card-image"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
       )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>

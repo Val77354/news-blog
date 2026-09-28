@@ -41,6 +41,8 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
       if (imageFile) {
         const result = await uploadImage(imageFile)
         imageUrl = result.url
+        setValues((v) => ({ ...v, image_url: imageUrl }))
+        setImageFile(null)
       }
       await onSubmit({ ...values, image_url: imageUrl })
     } catch (err) {

@@ -92,3 +92,11 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Final-review fix: keyboard focus indicator for the file-picker button
+   (the real <input type="file"> is visually hidden via the standard
+   clip technique but stays keyboard-reachable; this makes that focus
+   visible). */
+.post-form-image-picker:focus-within .post-form-file-button {
+  border-color: var(--accent);
+}

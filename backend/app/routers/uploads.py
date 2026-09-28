@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, status
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
 
-UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 
 ALLOWED_CONTENT_TYPES = {
     "image/jpeg": ".jpg",
@@ -26,6 +26,11 @@ async def upload_image(file: UploadFile):
         )
 
     contents = await file.read()
+    if not contents:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Uploaded file is empty.",
+        )
     if len(contents) > MAX_UPLOAD_BYTES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

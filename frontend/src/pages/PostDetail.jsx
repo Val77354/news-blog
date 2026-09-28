@@ -82,7 +82,14 @@ export default function PostDetail() {
         </div>
       )}
       {post.image_url && (
-        <img src={`${API_URL}${post.image_url}`} alt="" className="post-detail-image" />
+        <img
+          src={`${API_URL}${post.image_url}`}
+          alt=""
+          className="post-detail-image"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
       )}
       <div className="badge-row">
         <span className="category-pill">{post.category}</span>
