@@ -320,3 +320,33 @@ select:focus {
 .btn-danger:hover {
   animation: shake var(--dur-slow) var(--ease-out);
 }
+
+/* ---- Phase 3: page-enter transition ---- */
+
+.page {
+  animation: fade-up var(--dur-slow) var(--ease-out) forwards;
+}
+
+/* ---- Phase 3: respect prefers-reduced-motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .fade-up-item,
+  .hero-word,
+  .page {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .post-card::before,
+  .hero-backdrop {
+    display: none !important;
+  }
+}
