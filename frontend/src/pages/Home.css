@@ -30,3 +30,51 @@
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
+
+/* ---- Phase 3: animated hero ---- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-backdrop {
+  position: absolute;
+  top: -100px;
+  right: -80px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, var(--accent-dim), transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: drift 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-title {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-word {
+  display: inline-block;
+  opacity: 0;
+  animation: fade-up var(--dur-slow) var(--ease-out) forwards;
+}
+
+.hero-underline {
+  display: block;
+  height: 3px;
+  width: 0;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-bottom: var(--space-3);
+  animation: underline-sweep var(--dur-slow) var(--ease-out) 500ms forwards;
+}
+
+@keyframes underline-sweep {
+  to {
+    width: 120px;
+  }
+}

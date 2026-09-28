@@ -54,7 +54,15 @@ export default function Home() {
   return (
     <div className="page container">
       <header className="hero">
-        <h1>Stories worth your morning coffee.</h1>
+        <div className="hero-backdrop" aria-hidden="true" />
+        <h1 className="hero-title">
+          {'Stories worth your morning coffee.'.split(' ').map((word, i) => (
+            <span key={i} className="hero-word" style={{ animationDelay: `${i * 80}ms` }}>
+              {word}&nbsp;
+            </span>
+          ))}
+        </h1>
+        <span className="hero-underline" />
         <p>Reporting on technology, business, science, and the world beyond your feed.</p>
       </header>
 
