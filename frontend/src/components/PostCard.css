@@ -58,3 +58,13 @@
 .post-card:hover {
   box-shadow: 0 0 0 1px var(--accent), 0 12px 24px -8px var(--accent-dim);
 }
+
+/* Phase 3 final-review fix: .fade-up-item's `forwards` fill pins
+   `transform` permanently, so the existing hover lift (which uses
+   `transform: translateY(-2px)`) no longer has any visible effect.
+   `translate` composites independently of `transform` and isn't
+   affected by the animation, so it restores the lift without touching
+   the pre-existing rule. */
+.post-card:hover {
+  translate: 0 -2px;
+}

@@ -350,3 +350,16 @@ select:focus {
     display: none !important;
   }
 }
+
+/* Phase 3 final-review fix: the Task 10 reduced-motion block zeroes
+   animation-duration/transition-duration but not animation-delay, so
+   delayed animations (e.g. .hero-underline's 500ms delay) still sit in
+   their pre-animation state for the delay period under reduced motion.
+   This completes that override. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0s !important;
+  }
+}

@@ -53,3 +53,13 @@
   position: relative;
   z-index: 1;
 }
+
+/* Phase 3 final-review fix: neutralize the old instant background/border
+   swap now that the sliding .category-tab-indicator handles that
+   visually — keep only the instant text-color change. Same selector,
+   same specificity as the original rule above; this one wins because
+   it's later in the cascade. */
+.category-tab.active {
+  background: transparent;
+  border-color: transparent;
+}
