@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import models
 from .database import engine
-from .routers import posts, uploads
+from .routers import posts, podcasts, uploads
 from .routers.uploads import UPLOAD_DIR
 
 models.Base.metadata.create_all(bind=engine)
@@ -22,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(posts.router)
+app.include_router(podcasts.router)
 # uploads.router (POST /uploads/image) MUST be included before the
 # StaticFiles mount below — Starlette matches routes in registration
 # order, and Mount("/uploads", ...) claims the entire /uploads/* prefix.
