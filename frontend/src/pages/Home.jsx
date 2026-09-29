@@ -16,6 +16,7 @@ export default function Home() {
   const activeCategory = searchParams.get('category')
   const countriesParam = searchParams.get('countries')
   const selectedCountries = countriesParam ? countriesParam.split(',') : []
+  const query = searchParams.get('q') || ''
 
   function setActiveCategory(value) {
     const next = new URLSearchParams(searchParams)
@@ -34,7 +35,7 @@ export default function Home() {
   useEffect(() => {
     let ignore = false
     setStatus('loading')
-    listPosts({ category: activeCategory, countries: selectedCountries })
+    listPosts({ category: activeCategory, countries: selectedCountries, q: query })
       .then((data) => {
         if (!ignore) {
           setPosts(data)
@@ -50,7 +51,7 @@ export default function Home() {
     return () => {
       ignore = true
     }
-  }, [activeCategory, countriesParam])
+  }, [activeCategory, countriesParam, query])
 
   return (
     <div className="page container">
@@ -81,7 +82,9 @@ export default function Home() {
       )}
       {status === 'error' && <p className="state-message error">Couldn't load posts: {error}</p>}
       {status === 'ready' && posts.length === 0 && (
-        <p className="state-message">No posts match these filters.</p>
+        <p className="state-message">
+          {query ? `No posts match "${query}".` : 'No posts match these filters.'}
+        </p>
       )}
 
       {status === 'ready' && posts.length > 0 && (

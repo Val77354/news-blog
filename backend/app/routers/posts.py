@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -28,6 +29,7 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 def list_posts(
     category: str | None = None,
     countries: str | None = None,
+    q: str | None = None,
     db: Session = Depends(get_db),
 ):
     query = db.query(models.Post)
@@ -37,6 +39,15 @@ def list_posts(
         country_list = [c.strip() for c in countries.split(",") if c.strip()]
         if country_list:
             query = query.filter(models.Post.country.in_(country_list))
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                models.Post.title.ilike(like),
+                models.Post.content.ilike(like),
+                models.Post.author.ilike(like),
+            )
+        )
     return query.order_by(models.Post.created_at.desc()).all()
 
 

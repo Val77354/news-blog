@@ -21,10 +21,11 @@ async function handleResponse(res) {
   return res.json()
 }
 
-export function listPosts({ category, countries } = {}) {
+export function listPosts({ category, countries, q } = {}) {
   const params = new URLSearchParams()
   if (category) params.set('category', category)
   if (countries && countries.length > 0) params.set('countries', countries.join(','))
+  if (q) params.set('q', q)
   const qs = params.toString()
   return fetch(`${API_URL}/posts${qs ? `?${qs}` : ''}`).then(handleResponse)
 }

@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Navbar.css'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [query, setQuery] = useState(
+    () => new URLSearchParams(window.location.search).get('q') || ''
+  )
+  const navigate = useNavigate()
 
   useEffect(() => {
     function handleScroll() {
@@ -13,12 +17,53 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search)
+      const currentQuery = params.get('q') || ''
+      if (query === currentQuery) return
+
+      if (window.location.pathname === '/') {
+        if (query) params.set('q', query)
+        else params.delete('q')
+        navigate({ pathname: '/', search: params.toString() }, { replace: true })
+      } else if (query) {
+        navigate(`/?q=${encodeURIComponent(query)}`)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query, navigate])
+
   return (
     <nav className={`navbar${scrolled ? ' navbar-scrolled' : ''}`}>
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
           The Daily<span>Current</span>
         </Link>
+        <div className="navbar-search">
+          <svg viewBox="0 0 16 16" className="navbar-search-icon" aria-hidden="true">
+            <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search articles..."
+            aria-label="Search articles"
+            className="navbar-search-input"
+          />
+          {query && (
+            <button
+              type="button"
+              className="navbar-search-clear"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
         <div className="navbar-actions">
           <Link to="/podcasts" className="btn">
             Podcasts
