@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Backdrop from './components/Backdrop'
 import Ticker from './components/Ticker'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import Home from './pages/Home'
 import PostDetail from './pages/PostDetail'
 import NewPost from './pages/NewPost'
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/podcasts/new" element={<NewPodcast />} />
         <Route path="/podcasts/:id/edit" element={<EditPodcast />} />
       </Routes>
+      <Footer />
     </>
   )
 }
