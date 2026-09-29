@@ -84,3 +84,21 @@
 .post-card:hover .post-card-image {
   transform: scale(1.05);
 }
+
+/* ---- Phase 5: tags + stats footer ---- */
+
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-1);
+}
+
+.post-card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}

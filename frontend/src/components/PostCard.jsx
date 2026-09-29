@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import { resolveImageUrl } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
+import { getTags, getReadTime, getStats } from '../utils/postMeta'
 import './PostCard.css'
 
 function excerpt(content, length = 140) {
@@ -16,6 +17,7 @@ export default function PostCard({ post, index = 0 }) {
     month: 'short',
     day: 'numeric',
   })
+  const stats = getStats(post)
 
   function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -51,6 +53,18 @@ export default function PostCard({ post, index = 0 }) {
       <p className="post-card-excerpt">{excerpt(post.content)}</p>
       <div className="post-card-meta">
         {post.author} · {date}
+      </div>
+      <div className="post-card-tags">
+        {getTags(post).map((tag) => (
+          <span key={tag} className="tag-chip">
+            {tag}
+          </span>
+        ))}
+      </div>
+      <div className="post-card-stats">
+        <span>{getReadTime(post.content)}</span>
+        <span>{stats.views} views</span>
+        <span>{stats.comments} comments</span>
       </div>
     </Link>
   )
