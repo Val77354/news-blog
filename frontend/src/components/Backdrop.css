@@ -1,0 +1,49 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdrop-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  filter: blur(80px);
+  opacity: 0.16;
+  animation: drift 26s ease-in-out infinite;
+}
+
+.backdrop-orb-1 {
+  width: 480px;
+  height: 480px;
+  top: -120px;
+  left: -100px;
+}
+
+.backdrop-orb-2 {
+  width: 560px;
+  height: 560px;
+  top: 40%;
+  right: -180px;
+  animation-duration: 32s;
+  animation-delay: -8s;
+  opacity: 0.12;
+}
+
+.backdrop-orb-3 {
+  width: 400px;
+  height: 400px;
+  bottom: -140px;
+  left: 30%;
+  animation-duration: 28s;
+  animation-delay: -14s;
+  opacity: 0.14;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-orb {
+    animation: none !important;
+  }
+}

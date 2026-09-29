@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import Backdrop from './components/Backdrop'
 import Ticker from './components/Ticker'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
@@ -12,6 +13,7 @@ import EditPodcast from './podcasts/EditPodcast'
 export default function App() {
   return (
     <>
+      <Backdrop />
       <Ticker />
       <Navbar />
       <Routes>
