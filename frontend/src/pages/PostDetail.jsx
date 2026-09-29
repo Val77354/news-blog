@@ -18,6 +18,10 @@ export default function PostDetail() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
+  useEffect(() => {
     setStatus('loading')
     getPost(id)
       .then((data) => {
@@ -76,6 +80,8 @@ export default function PostDetail() {
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {
+      setError('Could not copy link')
     })
   }
 

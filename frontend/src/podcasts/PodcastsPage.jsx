@@ -64,8 +64,8 @@ export default function PodcastsPage() {
       )}
       {status === 'ready' && podcasts.length > 0 && (
         <div className="podcast-grid">
-          {podcasts.map((podcast) => (
-            <PodcastCard key={podcast.id} podcast={podcast} onDelete={handleDelete} />
+          {podcasts.map((podcast, i) => (
+            <PodcastCard key={podcast.id} podcast={podcast} index={i} onDelete={handleDelete} />
           ))}
         </div>
       )}

@@ -46,7 +46,18 @@ export default function EditPodcast() {
   return (
     <div className="page container">
       <h1>Edit Podcast</h1>
-      <PodcastForm initialValues={podcast} onSubmit={handleSubmit} submitLabel="Save Changes" />
+      <PodcastForm
+        initialValues={{
+          title: podcast.title,
+          host: podcast.host,
+          description: podcast.description,
+          cover_image_url: podcast.cover_image_url,
+          source: podcast.source,
+          external_url: podcast.external_url,
+        }}
+        onSubmit={handleSubmit}
+        submitLabel="Save Changes"
+      />
     </div>
   )
 }

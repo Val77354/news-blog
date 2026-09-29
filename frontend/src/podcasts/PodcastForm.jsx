@@ -33,7 +33,9 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
     }
   }
 
-  const preview = resolveImageUrl(values.cover_image_url)
+  const preview = values.cover_image_url && /^https?:\/\/\S+\.\S+/.test(values.cover_image_url)
+    ? resolveImageUrl(values.cover_image_url)
+    : null
 
   return (
     <form className="podcast-form" onSubmit={handleSubmit}>

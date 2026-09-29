@@ -1,8 +1,10 @@
 const DESCRIPTORS = ['Analysis', 'Report', 'Feature', 'Briefing', 'Opinion']
 
 export function getTags(post) {
-  const descriptor = DESCRIPTORS[post.id % DESCRIPTORS.length]
-  return [post.category, post.country, descriptor]
+  const first = DESCRIPTORS[post.id % DESCRIPTORS.length]
+  const secondIndex = (post.id + 2) % DESCRIPTORS.length
+  const second = DESCRIPTORS[secondIndex] === first ? DESCRIPTORS[(secondIndex + 1) % DESCRIPTORS.length] : DESCRIPTORS[secondIndex]
+  return [first, second]
 }
 
 export function getReadTime(content) {

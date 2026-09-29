@@ -3,12 +3,8 @@ import { useInView } from '../hooks/useInView'
 import { resolveImageUrl } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
 import { getTags, getReadTime, getStats } from '../utils/postMeta'
+import { excerpt } from '../utils/text'
 import './PostCard.css'
-
-function excerpt(content, length = 140) {
-  const flat = content.replace(/\s+/g, ' ').trim()
-  return flat.length > length ? `${flat.slice(0, length)}…` : flat
-}
 
 export default function PostCard({ post, index = 0 }) {
   const [ref, inView] = useInView()

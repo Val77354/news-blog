@@ -26,7 +26,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          <div className="site-footer-column">
+          <div className="site-footer-column site-footer-countries">
             <h3>Countries</h3>
             <ul>
               {COUNTRIES.map((c) => (

@@ -74,4 +74,10 @@
   .site-footer-grid {
     grid-template-columns: 1fr;
   }
+
+  .site-footer-countries ul {
+    display: block;
+    columns: 2;
+    column-gap: var(--space-2);
+  }
 }

@@ -17,6 +17,25 @@
   box-shadow: 0 0 0 1px var(--accent), 0 12px 24px -8px var(--accent-dim);
 }
 
+.podcast-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    220px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--accent-dim),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.podcast-card:hover::before {
+  opacity: 1;
+}
+
 .podcast-card-image {
   display: block;
   width: calc(100% + var(--space-3) * 2);
