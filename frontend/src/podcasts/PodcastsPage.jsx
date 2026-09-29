@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { listPodcasts, deletePodcast } from '../api/podcasts'
 import PodcastCard from './PodcastCard'
 import './PodcastsPage.css'
@@ -8,11 +8,13 @@ export default function PodcastsPage() {
   const [podcasts, setPodcasts] = useState([])
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('q') || ''
 
   useEffect(() => {
     let ignore = false
     setStatus('loading')
-    listPodcasts()
+    listPodcasts({ q: query })
       .then((data) => {
         if (!ignore) {
           setPodcasts(data)
@@ -28,7 +30,7 @@ export default function PodcastsPage() {
     return () => {
       ignore = true
     }
-  }, [])
+  }, [query])
 
   async function handleDelete(id) {
     try {
@@ -60,7 +62,9 @@ export default function PodcastsPage() {
       )}
       {status === 'error' && <p className="state-message error">Couldn't load podcasts: {error}</p>}
       {status === 'ready' && podcasts.length === 0 && (
-        <p className="state-message">No podcasts yet — add the first one.</p>
+        <p className="state-message">
+          {query ? `No podcasts match "${query}".` : 'No podcasts yet — add the first one.'}
+        </p>
       )}
       {status === 'ready' && podcasts.length > 0 && (
         <div className="podcast-grid">

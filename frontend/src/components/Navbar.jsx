@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import './Navbar.css'
 
 export default function Navbar() {
@@ -8,6 +8,8 @@ export default function Navbar() {
     () => new URLSearchParams(window.location.search).get('q') || ''
   )
   const navigate = useNavigate()
+  const location = useLocation()
+  const onPodcasts = location.pathname === '/podcasts'
 
   useEffect(() => {
     function handleScroll() {
@@ -17,16 +19,26 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Keep the box in sync with the destination's own ?q= whenever the route
+  // itself changes (nav-link clicks, back/forward) — but not on every
+  // keystroke, since typing changes the URL via the effect below too.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    setQuery(params.get('q') || '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(window.location.search)
       const currentQuery = params.get('q') || ''
       if (query === currentQuery) return
 
-      if (window.location.pathname === '/') {
+      const currentPath = window.location.pathname
+      if (currentPath === '/' || currentPath === '/podcasts') {
         if (query) params.set('q', query)
         else params.delete('q')
-        navigate({ pathname: '/', search: params.toString() }, { replace: true })
+        navigate({ pathname: currentPath, search: params.toString() }, { replace: true })
       } else if (query) {
         navigate(`/?q=${encodeURIComponent(query)}`)
       }
@@ -49,8 +61,8 @@ export default function Navbar() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search articles..."
-            aria-label="Search articles"
+            placeholder={onPodcasts ? 'Search podcasts...' : 'Search articles...'}
+            aria-label={onPodcasts ? 'Search podcasts' : 'Search articles'}
             className="navbar-search-input"
           />
           {query && (

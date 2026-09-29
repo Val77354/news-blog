@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -8,8 +9,18 @@ router = APIRouter(prefix="/podcasts", tags=["podcasts"])
 
 
 @router.get("", response_model=list[schemas.PodcastOut])
-def list_podcasts(db: Session = Depends(get_db)):
-    return db.query(models.Podcast).order_by(models.Podcast.created_at.desc()).all()
+def list_podcasts(q: str | None = None, db: Session = Depends(get_db)):
+    query = db.query(models.Podcast)
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                models.Podcast.title.ilike(like),
+                models.Podcast.host.ilike(like),
+                models.Podcast.description.ilike(like),
+            )
+        )
+    return query.order_by(models.Podcast.created_at.desc()).all()
 
 
 @router.get("/{podcast_id}", response_model=schemas.PodcastOut)

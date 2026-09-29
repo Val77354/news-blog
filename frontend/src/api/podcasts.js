@@ -16,8 +16,11 @@ async function handleResponse(res) {
   return res.json()
 }
 
-export function listPodcasts() {
-  return fetch(`${API_URL}/podcasts`).then(handleResponse)
+export function listPodcasts({ q } = {}) {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  const qs = params.toString()
+  return fetch(`${API_URL}/podcasts${qs ? `?${qs}` : ''}`).then(handleResponse)
 }
 
 export function getPodcast(id) {
