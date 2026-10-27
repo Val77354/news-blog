@@ -21,6 +21,8 @@ class Post(Base):
     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # Original article for stories brought in by the news importer
     source_url: Mapped[str | None] = mapped_column(String(500), nullable=True, unique=True)
+    # When the auto-publisher judged this imported draft (each one is judged only once)
+    auto_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # "draft" posts are only visible to the admin
     status: Mapped[str] = mapped_column(String(20), default="published", server_default="published")
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -1,5 +1,5 @@
 [
-  {"url": "https://feeds.bbci.co.uk/news/world/europe/rss.xml", "category": "World", "country": "United Kingdom", "limit": 5},
-  {"url": "https://www.theguardian.com/technology/rss", "category": "Technology", "country": "United Kingdom", "limit": 5},
-  {"url": "https://www.france24.com/en/europe/rss", "category": "World", "country": "France", "limit": 5}
+  {"url": "https://feeds.bbci.co.uk/news/world/europe/rss.xml", "category": "World", "country": "United Kingdom", "limit": 5, "auto_publish": true, "publish_limit": 3},
+  {"url": "https://www.theguardian.com/technology/rss", "category": "Technology", "country": "United Kingdom", "limit": 5, "auto_publish": true, "publish_limit": 3},
+  {"url": "https://www.france24.com/en/europe/rss", "category": "World", "country": "France", "limit": 5, "auto_publish": true, "publish_limit": 3}
 ]

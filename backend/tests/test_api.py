@@ -395,3 +395,73 @@ def test_import_reads_rss_1_0(admin, monkeypatch):
     body = {"feed_url": "https://dw.example/rss", "category": "World", "country": "Germany"}
     res = admin.post("/api/import", json=body, headers=CSRF).json()
     assert [p["title"] for p in res["created"]] == ["Berlin opens new rail link"]
+
+
+# ---------- Auto-publishing imported drafts ----------
+
+LONG = "A detailed summary of what happened, who was involved and why it matters to readers today."
+
+
+def _imported(db, n, title, summary=LONG, status="draft"):
+    from app.models import Post
+    post = Post(**{**POST, "title": title, "content": f"{summary}\n\nSource: Example."},
+                slug=f"imported-{n}", status=status, source_url=f"https://news.example.com/{n}")
+    db.add(post)
+    db.flush()
+    return post
+
+
+def test_auto_publish_rules():
+    from app.auto_publish import review
+    from app.database import SessionLocal
+    from app.models import Post
+
+    with SessionLocal() as db:
+        mine = Post(**{**POST, "title": "My own unfinished draft"}, slug="mine", status="draft")
+        db.add(mine)
+        drafts = [
+            _imported(db, 1, "Harry Kane wins Ballon d'Or for Bayern Munich"),
+            _imported(db, 2, "Perimenopause explained – podcast"),
+            _imported(db, 3, "Tiny story", summary="Too short to publish."),
+            _imported(db, 4, "Bayern Munich striker Harry Kane takes Ballon d'Or"),
+            _imported(db, 5, "Storm closes ports along northern coast"),
+            _imported(db, 6, "Parliament approves budget after long debate"),
+            _imported(db, 7, "Rail strike called off after late deal"),
+        ]
+        db.commit()
+        verdicts = {v.post.title: v for v in review(db, drafts + [mine], limit=3)}
+
+        published = [t for t, v in verdicts.items() if v.published]
+        assert published == ["Harry Kane wins Ballon d'Or for Bayern Munich",
+                             "Storm closes ports along northern coast",
+                             "Parliament approves budget after long debate"]
+        assert "podcast" in verdicts["Perimenopause explained – podcast"].reason
+        assert verdicts["Tiny story"].reason == "summary too short"
+        assert "same story" in verdicts["Bayern Munich striker Harry Kane takes Ballon d'Or"].reason
+        assert "limit" in verdicts["Rail strike called off after late deal"].reason
+        db.refresh(mine)
+        assert mine.status == "draft" and mine.auto_checked_at is None  # own drafts never touched
+        assert all(d.published_at for d in drafts if d.status == "published")
+
+
+def test_auto_publish_judges_each_draft_once():
+    from app.auto_publish import review
+    from app.database import SessionLocal
+
+    with SessionLocal() as db:
+        post = _imported(db, 1, "Storm closes ports along northern coast")
+        db.commit()
+        review(db, [post])
+        assert post.status == "published"
+        post.status = "draft"  # the admin unpublishes it
+        db.commit()
+        assert review(db, [post]) == []  # not published again
+        assert post.status == "draft"
+
+
+def test_near_duplicate_detection():
+    from app.auto_publish import is_near_duplicate
+    assert is_near_duplicate("Harry Kane: Ballon d’Or for Bayern Munich striker",
+                             "England and Bayern Munich striker Harry Kane wins Ballon d'Or")
+    assert not is_near_duplicate("Ballon d'Or in London - the most chaotic ever?",
+                                 "Harry Kane: Ballon d’Or for Bayern Munich striker")

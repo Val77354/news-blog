@@ -113,6 +113,17 @@ To collect news automatically, copy `backend/import_feeds.example.json` to
 and 19:00 (Windows Task Scheduler, "DailyCurrentNewsImport"); each run is
 recorded in `backend/import_news.log`.
 
+**Auto-publishing.** For feeds marked `"auto_publish": true`, the good stories
+go live on their own (rules in `backend/app/auto_publish.py`):
+- podcasts, videos, live blogs, quizzes and galleries stay drafts;
+- stories without a real summary (under 80 characters) stay drafts;
+- near-duplicates of a story published in the last 3 days stay drafts;
+- at most `"publish_limit"` stories (default 3) per feed per run go live.
+
+Each imported draft is judged once, so a story you unpublish stays
+unpublished, and your own drafts are never touched. The log shows every
+decision and the reason.
+
 ## API
 
 Everything is under `/api`:
