@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import { resolveImageUrl } from '../api/posts'
 import { PODCAST_SOURCE_ICONS } from '../constants'
+import { useAuth } from '../auth/AuthContext'
 import { excerpt } from '../utils/text'
 import './PodcastCard.css'
 
 export default function PodcastCard({ podcast, index = 0, onDelete }) {
+  const { isAdmin } = useAuth()
   const [ref, inView] = useInView()
   const cover = resolveImageUrl(podcast.cover_image_url)
 
@@ -52,12 +54,16 @@ export default function PodcastCard({ podcast, index = 0, onDelete }) {
         >
           Listen on {podcast.source}
         </a>
-        <Link to={`/podcasts/${podcast.id}/edit`} className="btn">
-          Edit
-        </Link>
-        <button className="btn btn-danger" onClick={handleDelete} type="button">
-          Delete
-        </button>
+        {isAdmin && (
+          <>
+            <Link to={`/podcasts/${podcast.id}/edit`} className="btn">
+              Edit
+            </Link>
+            <button className="btn btn-danger" onClick={handleDelete} type="button">
+              Delete
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

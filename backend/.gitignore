@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 *.db
 uploads/
+.env
+.pytest_cache/
+pytest-cache-files-*/

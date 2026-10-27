@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { CATEGORIES, COUNTRIES, COUNTRY_FLAGS } from '../constants'
+import { useAuth } from '../auth/AuthContext'
 import './Footer.css'
 
 export default function Footer() {
+  const { isAdmin } = useAuth()
   return (
     <footer className="site-footer">
       <div className="site-footer-inner container">
@@ -48,7 +50,7 @@ export default function Footer() {
                 <Link to="/podcasts">Podcasts</Link>
               </li>
               <li>
-                <Link to="/posts/new">New Post</Link>
+                {isAdmin ? <Link to="/posts/new">New Post</Link> : <Link to="/login">Admin login</Link>}
               </li>
             </ul>
           </div>

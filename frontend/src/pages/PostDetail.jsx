@@ -4,10 +4,12 @@ import { resolveImageUrl, getPost, deletePost, listPosts } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
 import { getTags, getReadTime, getStats } from '../utils/postMeta'
 import './PostDetail.css'
+import { useAuth } from '../auth/AuthContext'
 
 export default function PostDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const location = useLocation()
   const [post, setPost] = useState(null)
   const [status, setStatus] = useState('loading')
@@ -198,14 +200,16 @@ export default function PostDetail() {
         </div>
       )}
 
-      <div className="post-detail-actions">
-        <Link to={`/posts/${post.id}/edit`} className="btn">
-          Edit
-        </Link>
-        <button className="btn btn-danger" onClick={handleDelete}>
-          Delete
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="post-detail-actions">
+          <Link to={`/posts/${post.id}/edit`} className="btn">
+            Edit
+          </Link>
+          <button className="btn btn-danger" onClick={handleDelete}>
+            Delete
+          </button>
+        </div>
+      )}
       {error && <p className="state-message error">{error}</p>}
     </div>
   )

@@ -1,48 +1,7 @@
-import { API_URL } from './posts'
+import { apiFetch, withQuery } from './client'
 
-async function handleResponse(res) {
-  if (!res.ok) {
-    let detail = res.statusText
-    try {
-      const data = await res.json()
-      const d = data.detail
-      detail = Array.isArray(d) ? d.map((e) => e.msg).join(', ') : d || detail
-    } catch {
-      // response had no JSON body
-    }
-    throw new Error(detail)
-  }
-  if (res.status === 204) return null
-  return res.json()
-}
-
-export function listPodcasts({ q } = {}) {
-  const params = new URLSearchParams()
-  if (q) params.set('q', q)
-  const qs = params.toString()
-  return fetch(`${API_URL}/podcasts${qs ? `?${qs}` : ''}`).then(handleResponse)
-}
-
-export function getPodcast(id) {
-  return fetch(`${API_URL}/podcasts/${id}`).then(handleResponse)
-}
-
-export function createPodcast(podcast) {
-  return fetch(`${API_URL}/podcasts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(podcast),
-  }).then(handleResponse)
-}
-
-export function updatePodcast(id, podcast) {
-  return fetch(`${API_URL}/podcasts/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(podcast),
-  }).then(handleResponse)
-}
-
-export function deletePodcast(id) {
-  return fetch(`${API_URL}/podcasts/${id}`, { method: 'DELETE' }).then(handleResponse)
-}
+export const listPodcasts = ({ q } = {}) => apiFetch(withQuery('/podcasts', { q }))
+export const getPodcast = (id) => apiFetch(`/podcasts/${id}`)
+export const createPodcast = (podcast) => apiFetch('/podcasts', { method: 'POST', json: podcast })
+export const updatePodcast = (id, podcast) => apiFetch(`/podcasts/${id}`, { method: 'PUT', json: podcast })
+export const deletePodcast = (id) => apiFetch(`/podcasts/${id}`, { method: 'DELETE' })

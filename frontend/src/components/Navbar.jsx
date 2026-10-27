@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import './Navbar.css'
 
 export default function Navbar() {
@@ -8,6 +9,7 @@ export default function Navbar() {
     () => new URLSearchParams(window.location.search).get('q') || ''
   )
   const navigate = useNavigate()
+  const { isAdmin, logout } = useAuth()
   const location = useLocation()
   const onPodcasts = location.pathname === '/podcasts'
 
@@ -80,9 +82,16 @@ export default function Navbar() {
           <Link to="/podcasts" className="btn">
             Podcasts
           </Link>
-          <Link to="/posts/new" className="btn btn-primary">
-            New Post
-          </Link>
+          {isAdmin && (
+            <>
+              <Link to="/posts/new" className="btn btn-primary">
+                New Post
+              </Link>
+              <button type="button" className="btn" onClick={logout}>
+                Log out
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { listPodcasts, deletePodcast } from '../api/podcasts'
 import PodcastCard from './PodcastCard'
+import { useAuth } from '../auth/AuthContext'
 import './PodcastsPage.css'
 
 export default function PodcastsPage() {
@@ -9,6 +10,7 @@ export default function PodcastsPage() {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [searchParams] = useSearchParams()
+  const { isAdmin } = useAuth()
   const query = searchParams.get('q') || ''
 
   useEffect(() => {
@@ -48,9 +50,11 @@ export default function PodcastsPage() {
           <h1>Listen</h1>
           <p>Podcasts and shows from The DailyCurrent and other networks, all in one place.</p>
         </div>
-        <Link to="/podcasts/new" className="btn btn-primary">
-          Add Podcast
-        </Link>
+        {isAdmin && (
+          <Link to="/podcasts/new" className="btn btn-primary">
+            Add Podcast
+          </Link>
+        )}
       </header>
 
       {status === 'loading' && (
@@ -63,7 +67,7 @@ export default function PodcastsPage() {
       {status === 'error' && <p className="state-message error">Couldn't load podcasts: {error}</p>}
       {status === 'ready' && podcasts.length === 0 && (
         <p className="state-message">
-          {query ? `No podcasts match "${query}".` : 'No podcasts yet — add the first one.'}
+          {query ? `No podcasts match "${query}".` : 'No podcasts yet.'}
         </p>
       )}
       {status === 'ready' && podcasts.length > 0 && (

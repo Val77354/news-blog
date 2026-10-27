@@ -1,62 +1,69 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from .. import models, schemas
 from ..database import get_db
+from ..images import delete_if_unused
+from ..models import Podcast
+from ..schemas import PodcastIn, PodcastOut
+from ..security import require_admin
+from .common import Limit, Offset, SearchText, get_or_404, like_pattern
 
 router = APIRouter(prefix="/podcasts", tags=["podcasts"])
 
 
-@router.get("", response_model=list[schemas.PodcastOut])
-def list_podcasts(q: str | None = None, db: Session = Depends(get_db)):
-    query = db.query(models.Podcast)
-    if q:
-        like = f"%{q}%"
-        query = query.filter(
+@router.get("", response_model=list[PodcastOut])
+def list_podcasts(
+    q: str | None = SearchText,
+    limit: int = Limit,
+    offset: int = Offset,
+    db: Session = Depends(get_db),
+):
+    query = select(Podcast)
+    if q and q.strip():
+        pattern = like_pattern(q.strip())
+        query = query.where(
             or_(
-                models.Podcast.title.ilike(like),
-                models.Podcast.host.ilike(like),
-                models.Podcast.description.ilike(like),
+                Podcast.title.ilike(pattern, escape="\\"),
+                Podcast.host.ilike(pattern, escape="\\"),
+                Podcast.description.ilike(pattern, escape="\\"),
             )
         )
-    return query.order_by(models.Podcast.created_at.desc()).all()
+    query = query.order_by(Podcast.created_at.desc(), Podcast.id.desc()).limit(limit).offset(offset)
+    return db.scalars(query).all()
 
 
-@router.get("/{podcast_id}", response_model=schemas.PodcastOut)
+@router.get("/{podcast_id}", response_model=PodcastOut)
 def get_podcast(podcast_id: int, db: Session = Depends(get_db)):
-    podcast = db.query(models.Podcast).filter(models.Podcast.id == podcast_id).first()
-    if podcast is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Podcast not found")
+    return get_or_404(db, Podcast, podcast_id, "Podcast")
+
+
+@router.post("", response_model=PodcastOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
+def create_podcast(data: PodcastIn, db: Session = Depends(get_db)):
+    podcast = Podcast(**data.model_dump())
+    db.add(podcast)
+    db.commit()
+    db.refresh(podcast)
     return podcast
 
 
-@router.post("", response_model=schemas.PodcastOut, status_code=status.HTTP_201_CREATED)
-def create_podcast(podcast: schemas.PodcastCreate, db: Session = Depends(get_db)):
-    db_podcast = models.Podcast(**podcast.model_dump())
-    db.add(db_podcast)
+@router.put("/{podcast_id}", response_model=PodcastOut, dependencies=[Depends(require_admin)])
+def update_podcast(podcast_id: int, data: PodcastIn, db: Session = Depends(get_db)):
+    podcast = get_or_404(db, Podcast, podcast_id, "Podcast")
+    old_cover = podcast.cover_image_url
+    for field, value in data.model_dump().items():
+        setattr(podcast, field, value)
     db.commit()
-    db.refresh(db_podcast)
-    return db_podcast
+    db.refresh(podcast)
+    if old_cover != podcast.cover_image_url:
+        delete_if_unused(db, old_cover)
+    return podcast
 
 
-@router.put("/{podcast_id}", response_model=schemas.PodcastOut)
-def update_podcast(podcast_id: int, podcast: schemas.PodcastUpdate, db: Session = Depends(get_db)):
-    db_podcast = db.query(models.Podcast).filter(models.Podcast.id == podcast_id).first()
-    if db_podcast is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Podcast not found")
-    for field, value in podcast.model_dump().items():
-        setattr(db_podcast, field, value)
-    db.commit()
-    db.refresh(db_podcast)
-    return db_podcast
-
-
-@router.delete("/{podcast_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{podcast_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)])
 def delete_podcast(podcast_id: int, db: Session = Depends(get_db)):
-    db_podcast = db.query(models.Podcast).filter(models.Podcast.id == podcast_id).first()
-    if db_podcast is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Podcast not found")
-    db.delete(db_podcast)
+    podcast = get_or_404(db, Podcast, podcast_id, "Podcast")
+    cover = podcast.cover_image_url
+    db.delete(podcast)
     db.commit()
-    return None
+    delete_if_unused(db, cover)

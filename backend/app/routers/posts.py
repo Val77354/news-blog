@@ -1,94 +1,77 @@
-from datetime import datetime, timezone
-from pathlib import Path
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from .. import models, schemas
 from ..database import get_db
-from .uploads import UPLOAD_DIR
-
-
-def _delete_image_file(image_url: str | None) -> None:
-    if not image_url or image_url.startswith("http"):
-        return
-    name = Path(image_url).name
-    if not name:
-        return
-    try:
-        (UPLOAD_DIR / name).unlink(missing_ok=True)
-    except OSError:
-        pass
-
+from ..images import delete_if_unused
+from ..models import Post
+from ..schemas import PostIn, PostOut
+from ..security import require_admin
+from .common import Limit, Offset, SearchText, get_or_404, like_pattern
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-@router.get("", response_model=list[schemas.PostOut])
+@router.get("", response_model=list[PostOut])
 def list_posts(
-    category: str | None = None,
-    countries: str | None = None,
-    q: str | None = None,
+    category: str | None = Query(None, max_length=50),
+    countries: str | None = Query(None, max_length=500, description="Comma-separated country names"),
+    q: str | None = SearchText,
+    limit: int = Limit,
+    offset: int = Offset,
     db: Session = Depends(get_db),
 ):
-    query = db.query(models.Post)
+    query = select(Post)
     if category:
-        query = query.filter(models.Post.category == category)
+        query = query.where(Post.category == category)
     if countries:
-        country_list = [c.strip() for c in countries.split(",") if c.strip()]
+        country_list = [c.strip() for c in countries.split(",") if c.strip()][:20]
         if country_list:
-            query = query.filter(models.Post.country.in_(country_list))
-    if q:
-        like = f"%{q}%"
-        query = query.filter(
+            query = query.where(Post.country.in_(country_list))
+    if q and q.strip():
+        pattern = like_pattern(q.strip())
+        query = query.where(
             or_(
-                models.Post.title.ilike(like),
-                models.Post.content.ilike(like),
-                models.Post.author.ilike(like),
+                Post.title.ilike(pattern, escape="\\"),
+                Post.content.ilike(pattern, escape="\\"),
+                Post.author.ilike(pattern, escape="\\"),
             )
         )
-    return query.order_by(models.Post.created_at.desc()).all()
+    query = query.order_by(Post.created_at.desc(), Post.id.desc()).limit(limit).offset(offset)
+    return db.scalars(query).all()
 
 
-@router.get("/{post_id}", response_model=schemas.PostOut)
+@router.get("/{post_id}", response_model=PostOut)
 def get_post(post_id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == post_id).first()
-    if post is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    return get_or_404(db, Post, post_id, "Post")
+
+
+@router.post("", response_model=PostOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
+def create_post(data: PostIn, db: Session = Depends(get_db)):
+    post = Post(**data.model_dump())
+    db.add(post)
+    db.commit()
+    db.refresh(post)
     return post
 
 
-@router.post("", response_model=schemas.PostOut, status_code=status.HTTP_201_CREATED)
-def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
-    db_post = models.Post(**post.model_dump())
-    db.add(db_post)
+@router.put("/{post_id}", response_model=PostOut, dependencies=[Depends(require_admin)])
+def update_post(post_id: int, data: PostIn, db: Session = Depends(get_db)):
+    post = get_or_404(db, Post, post_id, "Post")
+    old_image = post.image_url
+    for field, value in data.model_dump().items():
+        setattr(post, field, value)
     db.commit()
-    db.refresh(db_post)
-    return db_post
+    db.refresh(post)
+    if old_image != post.image_url:
+        delete_if_unused(db, old_image)
+    return post
 
 
-@router.put("/{post_id}", response_model=schemas.PostOut)
-def update_post(post_id: int, post: schemas.PostUpdate, db: Session = Depends(get_db)):
-    db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
-    if db_post is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    if post.image_url != db_post.image_url:
-        _delete_image_file(db_post.image_url)
-    for field, value in post.model_dump().items():
-        setattr(db_post, field, value)
-    db_post.updated_at = datetime.now(timezone.utc)
-    db.commit()
-    db.refresh(db_post)
-    return db_post
-
-
-@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)])
 def delete_post(post_id: int, db: Session = Depends(get_db)):
-    db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
-    if db_post is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-    _delete_image_file(db_post.image_url)
-    db.delete(db_post)
+    post = get_or_404(db, Post, post_id, "Post")
+    image = post.image_url
+    db.delete(post)
     db.commit()
-    return None
+    delete_if_unused(db, image)

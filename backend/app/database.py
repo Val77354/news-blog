@@ -1,11 +1,22 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./news_blog.db"
+from .config import settings
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+
+
+@event.listens_for(engine, "connect")
+def _sqlite_pragmas(dbapi_connection, _record):
+    # WAL lets readers and the writer work at the same time; busy_timeout
+    # waits for a lock instead of failing straight away.
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA busy_timeout=5000")
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
