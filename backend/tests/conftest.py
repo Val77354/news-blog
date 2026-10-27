@@ -16,8 +16,10 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app import security  # noqa: E402
 from app.config import settings  # noqa: E402
-from app.database import Base, engine  # noqa: E402
+from app.database import engine  # noqa: E402
 from app.main import app  # noqa: E402
+from app.migrations import run_migrations  # noqa: E402
+from app.routers import posts as posts_router  # noqa: E402
 
 PASSWORD = "correct horse battery staple"
 object.__setattr__(settings, "admin_password_hash", security.hash_password(PASSWORD))
@@ -27,9 +29,13 @@ CSRF = {"X-Requested-With": "XMLHttpRequest"}
 
 @pytest.fixture(autouse=True)
 def fresh_db():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    # Build each test's database from scratch with the real migrations.
+    engine.dispose()
+    for suffix in ("", "-wal", "-shm"):
+        (_tmp / f"test.db{suffix}").unlink(missing_ok=True)
+    run_migrations()
     security._failures.clear()
+    posts_router._recent_views.clear()
     yield
 
 

@@ -7,7 +7,8 @@ export default function NewPost() {
 
   async function handleSubmit(values) {
     const post = await createPost(values)
-    navigate(`/posts/${post.id}`, { state: { justSaved: true, message: 'Post published!' } })
+    const message = post.status === 'draft' ? 'Draft saved!' : 'Post published!'
+    navigate(`/posts/${post.slug}`, { state: { justSaved: true, message } })
   }
 
   return (

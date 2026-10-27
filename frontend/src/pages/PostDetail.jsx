@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
-import { resolveImageUrl, getPost, deletePost, listPosts } from '../api/posts'
+import { resolveImageUrl, getPost, deletePost, listPosts, recordView } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
-import { getTags, getReadTime, getStats } from '../utils/postMeta'
+import { getReadTime, formatViews, displayDate } from '../utils/postMeta'
 import './PostDetail.css'
 import { useAuth } from '../auth/AuthContext'
 
@@ -29,12 +29,23 @@ export default function PostDetail() {
       .then((data) => {
         setPost(data)
         setStatus('ready')
+        // Old number links (/posts/12) switch to the readable address.
+        if (/^\d+$/.test(id)) navigate(`/posts/${data.slug}`, { replace: true, state: location.state })
       })
       .catch((err) => {
         setError(err.message)
         setStatus('error')
       })
   }, [id])
+
+  // Count one real view per visit (the server ignores repeats and the admin).
+  const postId = post?.id
+  useEffect(() => {
+    if (!postId) return
+    recordView(postId)
+      .then(({ view_count }) => setPost((p) => (p && p.id === postId ? { ...p, view_count } : p)))
+      .catch(() => {})
+  }, [postId])
 
   useEffect(() => {
     if (!post) return
@@ -103,12 +114,7 @@ export default function PostDetail() {
     )
   }
 
-  const date = new Date(post.created_at).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-  const stats = getStats(post)
+  const date = displayDate(post, { year: 'numeric', month: 'long', day: 'numeric' })
   const shareText = encodeURIComponent(post.title)
   const shareUrl = encodeURIComponent(window.location.href)
 
@@ -133,6 +139,7 @@ export default function PostDetail() {
         />
       )}
       <div className="badge-row">
+        {post.status === 'draft' && <span className="draft-badge">Draft — only you can see this</span>}
         <span className="category-pill">{post.category}</span>
         <span className="country-badge">
           {COUNTRY_FLAGS[post.country]} {post.country}
@@ -145,17 +152,9 @@ export default function PostDetail() {
       <p className="post-detail-body">{post.content}</p>
 
       <div className="post-detail-extras">
-        <div className="post-detail-tags">
-          {getTags(post).map((tag) => (
-            <span key={tag} className="tag-chip">
-              {tag}
-            </span>
-          ))}
-        </div>
         <div className="post-detail-stats">
           <span>{getReadTime(post.content)}</span>
-          <span>{stats.views} views</span>
-          <span>{stats.comments} comments</span>
+          <span>{formatViews(post.view_count)}</span>
         </div>
         <div className="post-detail-share">
           <span className="post-detail-share-label">Share:</span>
@@ -189,7 +188,7 @@ export default function PostDetail() {
           <h2 className="related-posts-title">More like this</h2>
           <div className="related-posts-grid">
             {relatedPosts.map((related) => (
-              <Link key={related.id} to={`/posts/${related.id}`} className="related-post-card">
+              <Link key={related.id} to={`/posts/${related.slug}`} className="related-post-card">
                 {related.image_url && (
                   <img src={resolveImageUrl(related.image_url)} alt="" className="related-post-image" />
                 )}

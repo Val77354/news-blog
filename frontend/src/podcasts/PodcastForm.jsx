@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PODCAST_SOURCES } from '../constants'
-import { resolveImageUrl } from '../api/posts'
+import { uploadImage } from '../api/uploads'
+import ImagePicker from '../components/ImagePicker'
 import './PodcastForm.css'
 
 const EMPTY = {
@@ -14,6 +15,7 @@ const EMPTY = {
 
 export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLabel = 'Add Podcast' }) {
   const [values, setValues] = useState(initialValues)
+  const [coverFile, setCoverFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -26,16 +28,18 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
     setSubmitting(true)
     setError(null)
     try {
-      await onSubmit({ ...values, cover_image_url: values.cover_image_url || null })
+      let coverUrl = values.cover_image_url || null
+      if (coverFile) {
+        coverUrl = (await uploadImage(coverFile)).url
+        setValues((v) => ({ ...v, cover_image_url: coverUrl }))
+        setCoverFile(null)
+      }
+      await onSubmit({ ...values, cover_image_url: coverUrl })
     } catch (err) {
       setError(err.message)
       setSubmitting(false)
     }
   }
-
-  const preview = values.cover_image_url && /^https?:\/\/\S+\.\S+/.test(values.cover_image_url)
-    ? resolveImageUrl(values.cover_image_url)
-    : null
 
   return (
     <form className="podcast-form" onSubmit={handleSubmit}>
@@ -66,16 +70,11 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
         Description
         <textarea value={values.description} onChange={update('description')} required />
       </label>
-      <label>
-        Cover image URL (optional)
-        <input
-          type="url"
-          value={values.cover_image_url ?? ''}
-          onChange={update('cover_image_url')}
-          placeholder="https://..."
-        />
-      </label>
-      {preview && <img src={preview} alt="" className="podcast-form-image-preview" />}
+      <ImagePicker
+        initialUrl={initialValues.cover_image_url}
+        onFileSelected={setCoverFile}
+        caption="Cover image (optional)"
+      />
       <label>
         External link
         <input type="url" value={values.external_url} onChange={update('external_url')} required />

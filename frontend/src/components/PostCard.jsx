@@ -2,18 +2,13 @@ import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import { resolveImageUrl } from '../api/posts'
 import { COUNTRY_FLAGS } from '../constants'
-import { getTags, getReadTime, getStats } from '../utils/postMeta'
+import { getReadTime, formatViews, displayDate } from '../utils/postMeta'
 import { excerpt } from '../utils/text'
 import './PostCard.css'
 
 export default function PostCard({ post, index = 0 }) {
   const [ref, inView] = useInView()
-  const date = new Date(post.created_at).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-  const stats = getStats(post)
+  const date = displayDate(post, { year: 'numeric', month: 'short', day: 'numeric' })
 
   function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -23,7 +18,7 @@ export default function PostCard({ post, index = 0 }) {
 
   return (
     <Link
-      to={`/posts/${post.id}`}
+      to={`/posts/${post.slug}`}
       className={`post-card${inView ? ' fade-up-item' : ''}`}
       style={inView ? { animationDelay: `${Math.min(index, 8) * 60}ms` } : { opacity: 0 }}
       ref={ref}
@@ -40,6 +35,7 @@ export default function PostCard({ post, index = 0 }) {
         />
       )}
       <div className="badge-row">
+        {post.status === 'draft' && <span className="draft-badge">Draft</span>}
         <span className="category-pill">{post.category}</span>
         <span className="country-badge">
           {COUNTRY_FLAGS[post.country]} {post.country}
@@ -50,17 +46,9 @@ export default function PostCard({ post, index = 0 }) {
       <div className="post-card-meta">
         {post.author} · {date}
       </div>
-      <div className="post-card-tags">
-        {getTags(post).map((tag) => (
-          <span key={tag} className="tag-chip">
-            {tag}
-          </span>
-        ))}
-      </div>
       <div className="post-card-stats">
         <span>{getReadTime(post.content)}</span>
-        <span>{stats.views} views</span>
-        <span>{stats.comments} comments</span>
+        <span>{formatViews(post.view_count)}</span>
       </div>
     </Link>
   )

@@ -6,7 +6,7 @@ and only safe URLs. Output models (…Out) just describe what we send back.
 
 import re
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, StringConstraints
 
@@ -62,6 +62,9 @@ class ReadModel(BaseModel):
 
 # ---------- Posts ----------
 
+PostStatus = Literal["draft", "published"]
+
+
 class PostIn(StrictInput):
     title: Text(3, 200)
     content: Text(1, 50_000)
@@ -69,18 +72,27 @@ class PostIn(StrictInput):
     category: Category
     country: Country
     image_url: OptionalImageUrl = None
+    status: PostStatus = "published"
 
 
 class PostOut(ReadModel):
     id: int
+    slug: str
     title: str
     content: str
     author: str
     category: str
     country: str
     image_url: str | None
+    status: str
+    published_at: UtcDatetime | None
+    view_count: int
     created_at: UtcDatetime
     updated_at: UtcDatetime
+
+
+class ViewCount(BaseModel):
+    view_count: int
 
 
 # ---------- Podcasts ----------

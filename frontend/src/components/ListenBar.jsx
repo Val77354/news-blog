@@ -40,7 +40,7 @@ export default function ListenBar() {
       </button>
       <div className="listen-copy">
         <span className="listen-label">Listen</span>
-        <Link to={`/posts/${latest.id}`} className="listen-title">
+        <Link to={`/posts/${latest.slug}`} className="listen-title">
           {latest.title}
         </Link>
       </div>

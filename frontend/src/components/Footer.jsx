@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { CATEGORIES, COUNTRIES, COUNTRY_FLAGS } from '../constants'
 import { useAuth } from '../auth/AuthContext'
+import { API_URL } from '../api/client'
 import './Footer.css'
 
 export default function Footer() {
@@ -48,6 +49,9 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/podcasts">Podcasts</Link>
+              </li>
+              <li>
+                <a href={`${API_URL}/feed.xml`}>RSS feed</a>
               </li>
               <li>
                 {isAdmin ? <Link to="/posts/new">New Post</Link> : <Link to="/login">Admin login</Link>}

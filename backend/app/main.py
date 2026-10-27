@@ -3,13 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import models
 from .config import settings
-from .database import engine
-from .routers import auth, podcasts, posts, uploads
+from .migrations import run_migrations
+from .routers import auth, feeds, podcasts, posts, uploads
 from .security import CSRF_HEADER
 
-models.Base.metadata.create_all(bind=engine)
+run_migrations()  # create or update the database tables
 settings.upload_dir.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
@@ -43,7 +42,7 @@ async def security_middleware(request: Request, call_next):
     if request.url.path.startswith("/uploads/"):
         headers["Cross-Origin-Resource-Policy"] = "cross-origin"  # the frontend shows these images
         headers["Cache-Control"] = "public, max-age=31536000, immutable"  # filenames never change
-    else:
+    elif "cache-control" not in headers:
         headers["Cache-Control"] = "no-store"
     if settings.cookie_secure:
         headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
@@ -61,6 +60,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(podcasts.router)
+app.include_router(feeds.router)
 # The upload router must come BEFORE the /uploads static mount, because the
 # mount claims every /uploads/* path and would otherwise swallow POST /uploads/image.
 app.include_router(uploads.router)

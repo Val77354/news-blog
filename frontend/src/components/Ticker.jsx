@@ -21,7 +21,7 @@ export default function Ticker() {
       <div className="ticker-track">
         <div className="ticker-content">
           {posts.map((post) => (
-            <Link key={post.id} to={`/posts/${post.id}`} className="ticker-item">
+            <Link key={post.id} to={`/posts/${post.slug}`} className="ticker-item">
               {post.title}
             </Link>
           ))}

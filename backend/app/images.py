@@ -77,3 +77,11 @@ def delete_if_unused(db: Session, url: str | None) -> None:
         path.unlink(missing_ok=True)
     except OSError as exc:
         log.warning("Could not delete %s: %s", path, exc)
+
+
+def check_image_source(new_url: str | None, current_url: str | None = None) -> None:
+    """New images must be uploaded here. Links to other sites let those sites
+    see every reader's IP address, so they're only kept on posts that had them
+    before this rule existed (and only while unchanged)."""
+    if new_url and not LOCAL_UPLOAD_RE.match(new_url) and new_url != current_url:
+        raise _reject("Please upload the image instead of linking to another website.")

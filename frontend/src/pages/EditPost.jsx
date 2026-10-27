@@ -23,8 +23,8 @@ export default function EditPost() {
   }, [id])
 
   async function handleSubmit(values) {
-    await updatePost(id, values)
-    navigate(`/posts/${id}`, { state: { justSaved: true, message: 'Changes saved!' } })
+    const saved = await updatePost(post.id, values)
+    navigate(`/posts/${saved.slug}`, { state: { justSaved: true, message: 'Changes saved!' } })
   }
 
   if (status === 'loading') {
@@ -54,6 +54,7 @@ export default function EditPost() {
           category: post.category,
           country: post.country,
           image_url: post.image_url,
+          status: post.status,
         }}
         onSubmit={handleSubmit}
         submitLabel="Save Changes"

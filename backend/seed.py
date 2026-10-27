@@ -1,7 +1,13 @@
-from app.database import SessionLocal, engine
-from app import models
+from datetime import datetime, timezone
 
-models.Base.metadata.create_all(bind=engine)
+from sqlalchemy import select
+
+from app import models
+from app.database import SessionLocal
+from app.migrations import run_migrations
+from app.slugs import unique_slug
+
+run_migrations()
 
 SAMPLE_POSTS = [
     {
@@ -708,8 +714,11 @@ def seed():
     db = SessionLocal()
     try:
         if db.query(models.Post).count() == 0:
+            taken: set[str] = set(db.scalars(select(models.Post.slug)))
             for data in SAMPLE_POSTS:
-                db.add(models.Post(**data))
+                slug = unique_slug(data["title"], taken.__contains__)
+                taken.add(slug)
+                db.add(models.Post(**data, slug=slug, published_at=datetime.now(timezone.utc)))
             db.commit()
             print(f"Seeded {len(SAMPLE_POSTS)} posts.")
         else:

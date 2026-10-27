@@ -6,3 +6,5 @@ uploads/
 .env
 .pytest_cache/
 pytest-cache-files-*/
+*.db.*
+backups/

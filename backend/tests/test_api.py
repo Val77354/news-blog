@@ -169,3 +169,91 @@ def test_cors_only_allows_frontend(client):
     assert ok.headers.get("access-control-allow-origin") == "http://localhost:5173"
     bad = client.options("/posts", headers={"Origin": "https://evil.com", "Access-Control-Request-Method": "POST"})
     assert "access-control-allow-origin" not in bad.headers
+
+
+# ---------- Drafts ----------
+
+def test_drafts_hidden_from_visitors(admin, client):
+    admin.post("/posts", json={**POST, "title": "Secret draft", "status": "draft"}, headers=CSRF)
+    admin.post("/posts", json=POST, headers=CSRF)
+    assert len(admin.get("/posts").json()) == 2  # admin sees both
+    admin.cookies.clear()
+    visible = client.get("/posts").json()
+    assert [p["title"] for p in visible] == [POST["title"]]
+    assert client.get("/posts/1").status_code == 404
+    assert client.get("/posts/secret-draft").status_code == 404
+
+
+def test_publishing_a_draft_sets_date(admin):
+    draft = admin.post("/posts", json={**POST, "status": "draft"}, headers=CSRF).json()
+    assert draft["published_at"] is None
+    published = admin.put(f"/posts/{draft['id']}", json={**POST, "status": "published"}, headers=CSRF).json()
+    assert published["published_at"] is not None
+
+
+# ---------- Slugs ----------
+
+def test_slugs(admin):
+    first = admin.post("/posts", json={**POST, "title": "Zürich Hosts Talks!"}, headers=CSRF).json()
+    second = admin.post("/posts", json={**POST, "title": "Zurich hosts talks"}, headers=CSRF).json()
+    assert first["slug"] == "zurich-hosts-talks"
+    assert second["slug"] == "zurich-hosts-talks-2"
+    assert admin.get("/posts/zurich-hosts-talks").json()["id"] == first["id"]
+    assert admin.get(f"/posts/{first['id']}").json()["slug"] == first["slug"]  # old number links still work
+    edited = admin.put(f"/posts/{first['id']}", json={**POST, "title": "New title"}, headers=CSRF).json()
+    assert edited["slug"] == "zurich-hosts-talks"  # links don't break when the title changes
+
+
+# ---------- View counts ----------
+
+def test_views_count_once_per_visitor(admin, client):
+    post = admin.post("/posts", json=POST, headers=CSRF).json()
+    assert admin.post(f"/posts/{post['id']}/view", headers=CSRF).json()["view_count"] == 0  # admin not counted
+    admin.cookies.clear()
+    assert client.post(f"/posts/{post['id']}/view", headers=CSRF).json()["view_count"] == 1
+    assert client.post(f"/posts/{post['id']}/view", headers=CSRF).json()["view_count"] == 1  # repeat ignored
+    after = client.get(f"/posts/{post['id']}").json()
+    assert after["view_count"] == 1 and after["updated_at"] == post["updated_at"]
+
+
+# ---------- Full-text search ----------
+
+def test_full_text_search(admin):
+    admin.post("/posts", json={**POST, "title": "Geneva privacy talks", "content": "Negotiators met."}, headers=CSRF)
+    admin.post("/posts", json={**POST, "title": "Football final", "content": "A late goal in Genève."}, headers=CSRF)
+    titles = lambda q: [p["title"] for p in admin.get("/posts", params={"q": q}).json()]  # noqa: E731
+    assert titles("privacy") == ["Geneva privacy talks"]
+    assert titles("negotiat") == ["Geneva privacy talks"]  # matches the start of a word
+    assert titles("geneve") == ["Football final"]  # accents ignored
+    assert titles("geneva talks") == ["Geneva privacy talks"]  # every word must match
+    assert titles('"); DROP TABLE posts; --') == []  # odd input is harmless
+    admin.put("/posts/1", json={**POST, "title": "Renamed"}, headers=CSRF)
+    assert titles("privacy") == []  # index follows edits
+
+
+# ---------- Own images only ----------
+
+def test_outside_images_rejected_but_old_ones_kept(admin):
+    outside = "https://picsum.photos/seed/x/800/450"
+    assert admin.post("/posts", json={**POST, "image_url": outside}, headers=CSRF).status_code == 422
+    assert admin.post("/podcasts", json={**PODCAST, "cover_image_url": outside}, headers=CSRF).status_code == 422
+    # A post that already had an outside image (from before this rule) can still be edited.
+    from app.database import SessionLocal
+    from app.models import Post
+    with SessionLocal() as db:
+        db.add(Post(**{**POST, "image_url": outside}, slug="old-post", status="published"))
+        db.commit()
+    assert admin.put("/posts/1", json={**POST, "image_url": outside, "title": "Edited"}, headers=CSRF).status_code == 200
+    assert admin.put("/posts/1", json={**POST, "image_url": outside + "?new"}, headers=CSRF).status_code == 422
+
+
+# ---------- Feeds ----------
+
+def test_rss_and_sitemap(admin):
+    admin.post("/posts", json={**POST, "title": "Public <story> & more"}, headers=CSRF)
+    admin.post("/posts", json={**POST, "title": "Hidden draft", "status": "draft"}, headers=CSRF)
+    rss = admin.get("/feed.xml")
+    assert rss.headers["content-type"].startswith("application/rss+xml")
+    assert "Public &lt;story&gt; &amp; more" in rss.text and "Hidden draft" not in rss.text
+    sitemap = admin.get("/sitemap.xml").text
+    assert "/posts/public-story-more" in sitemap and "hidden-draft" not in sitemap

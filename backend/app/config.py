@@ -31,6 +31,8 @@ class Settings:
     database_url: str = os.getenv("DATABASE_URL", f"sqlite:///{BACKEND_DIR / 'news_blog.db'}")
     upload_dir: Path = Path(os.getenv("UPLOAD_DIR", str(BACKEND_DIR / "uploads")))
     cors_origins: list[str] = field(default_factory=lambda: _list("CORS_ORIGINS", "http://localhost:5173"))
+    # The public address of the website, used in the RSS feed and sitemap.
+    site_url: str = os.getenv("SITE_URL", "http://localhost:5173").rstrip("/")
 
     # Admin login
     admin_password_hash: str = os.getenv("ADMIN_PASSWORD_HASH", "")
@@ -54,3 +56,12 @@ if not settings.secret_key:
 
 if not settings.admin_password_hash:
     log.warning("ADMIN_PASSWORD_HASH is not set; admin login is disabled. Run `python set_password.py`.")
+
+# Production safety checks: the site is "live" once it's served over https.
+if settings.site_url.startswith("https://"):
+    if not settings.cookie_secure:
+        log.warning("Site is on HTTPS but COOKIE_SECURE is false. Set COOKIE_SECURE=true.")
+    if settings.enable_docs:
+        log.warning("API docs are public. Set ENABLE_DOCS=false in production.")
+    if any(origin.startswith("http://") for origin in settings.cors_origins):
+        log.warning("CORS_ORIGINS contains an http:// address. Use only your https:// site.")

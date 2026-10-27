@@ -3,7 +3,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..images import delete_if_unused
+from ..images import check_image_source, delete_if_unused
 from ..models import Podcast
 from ..schemas import PodcastIn, PodcastOut
 from ..security import require_admin
@@ -40,6 +40,7 @@ def get_podcast(podcast_id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=PodcastOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
 def create_podcast(data: PodcastIn, db: Session = Depends(get_db)):
+    check_image_source(data.cover_image_url)
     podcast = Podcast(**data.model_dump())
     db.add(podcast)
     db.commit()
@@ -50,6 +51,7 @@ def create_podcast(data: PodcastIn, db: Session = Depends(get_db)):
 @router.put("/{podcast_id}", response_model=PodcastOut, dependencies=[Depends(require_admin)])
 def update_podcast(podcast_id: int, data: PodcastIn, db: Session = Depends(get_db)):
     podcast = get_or_404(db, Podcast, podcast_id, "Podcast")
+    check_image_source(data.cover_image_url, podcast.cover_image_url)
     old_cover = podcast.cover_image_url
     for field, value in data.model_dump().items():
         setattr(podcast, field, value)

@@ -397,3 +397,15 @@ body::after {
   padding: 2px 8px;
   border-radius: 999px;
 }
+
+.draft-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  background: #ffc94d;
+  padding: 3px 10px;
+  border-radius: 999px;
+}

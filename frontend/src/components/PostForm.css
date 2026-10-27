@@ -60,7 +60,7 @@
   border: 1px solid var(--border);
 }
 
-.post-form label.post-form-file-button {
+.post-form-image-picker label.post-form-file-button {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
