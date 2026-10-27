@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import '../components/PostForm.css'
 
 export default function Login() {
-  const { login } = useAuth()
+  const { login, isAdmin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+
+  // Already logged in: go straight on instead of showing the form again.
+  if (isAdmin) return <Navigate to={location.state?.from || '/'} replace />
 
   async function handleSubmit(e) {
     e.preventDefault()

@@ -10,7 +10,10 @@ export default function ListenBar() {
   useEffect(() => {
     listPosts()
       .then((data) => setLatest(data[0] || null))
-      .catch(() => setLatest(null))
+      .catch((err) => {
+        console.warn('Could not load latest post', err)
+        setLatest(null)
+      })
   }, [])
 
   const text = latest ? `${latest.title}. ${latest.content}` : ''

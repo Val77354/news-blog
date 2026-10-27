@@ -8,6 +8,9 @@ import PostDetail from './pages/PostDetail'
 import NewPost from './pages/NewPost'
 import EditPost from './pages/EditPost'
 import Login from './pages/Login'
+import NotFound from './pages/NotFound'
+import ImportNews from './pages/ImportNews'
+import ErrorBoundary from './components/ErrorBoundary'
 import PodcastsPage from './podcasts/PodcastsPage'
 import NewPodcast from './podcasts/NewPodcast'
 import EditPodcast from './podcasts/EditPodcast'
@@ -19,6 +22,7 @@ export default function App() {
       <Backdrop />
       <Ticker />
       <Navbar />
+      <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -28,7 +32,10 @@ export default function App() {
         <Route path="/podcasts" element={<PodcastsPage />} />
         <Route path="/podcasts/new" element={<AdminOnly><NewPodcast /></AdminOnly>} />
         <Route path="/podcasts/:id/edit" element={<AdminOnly><EditPodcast /></AdminOnly>} />
+        <Route path="/admin/import" element={<AdminOnly><ImportNews /></AdminOnly>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
+      </ErrorBoundary>
       <Footer />
     </AuthProvider>
   )

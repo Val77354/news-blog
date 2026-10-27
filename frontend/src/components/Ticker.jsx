@@ -10,7 +10,10 @@ export default function Ticker() {
   useEffect(() => {
     listPosts()
       .then((data) => setPosts(data.slice(0, 5)))
-      .catch(() => setPosts([]))
+      .catch((err) => {
+        console.warn('Could not load headlines', err)
+        setPosts([])
+      })
   }, [pathname])
 
   if (posts.length === 0) return null

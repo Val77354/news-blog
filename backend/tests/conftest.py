@@ -46,7 +46,7 @@ def client():
 
 @pytest.fixture
 def admin(client):
-    res = client.post("/auth/login", json={"password": PASSWORD}, headers=CSRF)
+    res = client.post("/api/auth/login", json={"password": PASSWORD}, headers=CSRF)
     assert res.status_code == 200
     return client
 

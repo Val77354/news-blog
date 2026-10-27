@@ -30,6 +30,8 @@ def _list(name: str, default: str) -> list[str]:
 class Settings:
     database_url: str = os.getenv("DATABASE_URL", f"sqlite:///{BACKEND_DIR / 'news_blog.db'}")
     upload_dir: Path = Path(os.getenv("UPLOAD_DIR", str(BACKEND_DIR / "uploads")))
+    # The built website (`npm run build`), served by the backend at /
+    frontend_dist: Path = Path(os.getenv("FRONTEND_DIST", str(BACKEND_DIR.parent / "frontend" / "dist")))
     cors_origins: list[str] = field(default_factory=lambda: _list("CORS_ORIGINS", "http://localhost:5173"))
     # The public address of the website, used in the RSS feed and sitemap.
     site_url: str = os.getenv("SITE_URL", "http://localhost:5173").rstrip("/")

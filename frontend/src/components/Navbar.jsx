@@ -87,7 +87,17 @@ export default function Navbar() {
               <Link to="/posts/new" className="btn btn-primary">
                 New Post
               </Link>
-              <button type="button" className="btn" onClick={logout}>
+              <Link to="/admin/import" className="btn">
+                Import
+              </Link>
+              <button
+                type="button"
+                className="btn"
+                onClick={async () => {
+                  await logout()
+                  navigate('/', { replace: true })
+                }}
+              >
                 Log out
               </button>
             </>

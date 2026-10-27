@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { PODCAST_SOURCES } from '../constants'
 import { uploadImage } from '../api/uploads'
+import { checkPodcast } from '../utils/validation'
+import FormField from '../components/FormField'
 import ImagePicker from '../components/ImagePicker'
 import './PodcastForm.css'
 
@@ -18,13 +20,26 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
   const [coverFile, setCoverFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [checked, setChecked] = useState(false)
 
   function update(field) {
-    return (e) => setValues((v) => ({ ...v, [field]: e.target.value }))
+    return (e) => {
+      const next = { ...values, [field]: e.target.value }
+      setValues(next)
+      if (checked) setFieldErrors(checkPodcast(next, { sources: PODCAST_SOURCES }))
+    }
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
+    const problems = checkPodcast(values, { sources: PODCAST_SOURCES })
+    setChecked(true)
+    setFieldErrors(problems)
+    if (Object.keys(problems).length > 0) {
+      setError('Please fix the highlighted fields.')
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -42,19 +57,16 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
   }
 
   return (
-    <form className="podcast-form" onSubmit={handleSubmit}>
-      <label>
-        Title
-        <input value={values.title} onChange={update('title')} required />
-      </label>
+    <form className="podcast-form" onSubmit={handleSubmit} noValidate>
+      <FormField label="Title" error={fieldErrors.title}>
+        <input value={values.title} onChange={update('title')} maxLength={200} aria-invalid={!!fieldErrors.title} />
+      </FormField>
       <div className="podcast-form-row">
-        <label>
-          Host
-          <input value={values.host} onChange={update('host')} required />
-        </label>
-        <label>
-          Source
-          <select value={values.source} onChange={update('source')} required>
+        <FormField label="Host" error={fieldErrors.host} hint="Letters only">
+          <input value={values.host} onChange={update('host')} maxLength={100} aria-invalid={!!fieldErrors.host} />
+        </FormField>
+        <FormField label="Source" error={fieldErrors.source}>
+          <select value={values.source} onChange={update('source')} aria-invalid={!!fieldErrors.source}>
             <option value="" disabled>
               Select a source
             </option>
@@ -64,21 +76,19 @@ export default function PodcastForm({ initialValues = EMPTY, onSubmit, submitLab
               </option>
             ))}
           </select>
-        </label>
+        </FormField>
       </div>
-      <label>
-        Description
-        <textarea value={values.description} onChange={update('description')} required />
-      </label>
+      <FormField label="Description" error={fieldErrors.description}>
+        <textarea value={values.description} onChange={update('description')} maxLength={5000} aria-invalid={!!fieldErrors.description} />
+      </FormField>
       <ImagePicker
         initialUrl={initialValues.cover_image_url}
         onFileSelected={setCoverFile}
         caption="Cover image (optional)"
       />
-      <label>
-        External link
-        <input type="url" value={values.external_url} onChange={update('external_url')} required />
-      </label>
+      <FormField label="External link" error={fieldErrors.external_url} hint="e.g. https://open.spotify.com/show/...">
+        <input type="url" value={values.external_url} onChange={update('external_url')} maxLength={500} aria-invalid={!!fieldErrors.external_url} />
+      </FormField>
       <div className="podcast-form-actions">
         <button className="btn btn-primary" type="submit" disabled={submitting}>
           {submitting ? 'Saving…' : submitLabel}

@@ -19,6 +19,8 @@ class Post(Base):
     category: Mapped[str] = mapped_column(String(50))
     country: Mapped[str] = mapped_column(String(100))
     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Original article for stories brought in by the news importer
+    source_url: Mapped[str | None] = mapped_column(String(500), nullable=True, unique=True)
     # "draft" posts are only visible to the admin
     status: Mapped[str] = mapped_column(String(20), default="published", server_default="published")
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

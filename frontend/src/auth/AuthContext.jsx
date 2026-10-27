@@ -14,7 +14,10 @@ export function AuthProvider({ children }) {
     authApi
       .getAuthStatus()
       .then((s) => setIsAdmin(s.admin))
-      .catch(() => setIsAdmin(false))
+      .catch((err) => {
+        console.warn('Could not check login status', err)
+        setIsAdmin(false)
+      })
       .finally(() => setReady(true))
   }, [])
 
@@ -24,7 +27,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await authApi.logout().catch(() => {})
+    try {
+      await authApi.logout()
+    } catch (err) {
+      // Still hide admin controls here; the session cookie expires on its own.
+      console.warn('Logout request failed', err)
+    }
     setIsAdmin(false)
   }, [])
 

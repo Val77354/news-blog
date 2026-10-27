@@ -44,7 +44,7 @@ export default function PostDetail() {
     if (!postId) return
     recordView(postId)
       .then(({ view_count }) => setPost((p) => (p && p.id === postId ? { ...p, view_count } : p)))
-      .catch(() => {})
+      .catch((err) => console.warn('Could not record view', err))
   }, [postId])
 
   useEffect(() => {
@@ -58,8 +58,9 @@ export default function PostDetail() {
           .slice(0, 4)
         setRelatedPosts(related)
       })
-      .catch(() => {
-        // related posts are a nice-to-have; failing silently keeps the page usable
+      .catch((err) => {
+        // Related posts are a nice-to-have: the page still works without them.
+        console.warn('Could not load related posts', err)
       })
     return () => {
       ignore = true
@@ -82,8 +83,8 @@ export default function PostDetail() {
   async function handleDelete() {
     if (!window.confirm('Delete this post? This cannot be undone.')) return
     try {
-      await deletePost(id)
-      navigate('/')
+      await deletePost(post.id)
+      navigate('/', { replace: true })
     } catch (err) {
       setError(err.message)
     }
@@ -150,6 +151,13 @@ export default function PostDetail() {
         {post.author} · {date}
       </div>
       <p className="post-detail-body">{post.content}</p>
+      {post.source_url && (
+        <p className="post-detail-source">
+          <a href={post.source_url} target="_blank" rel="noopener noreferrer nofollow">
+            Read the original story at {new URL(post.source_url).hostname.replace(/^www\./, '')} ↗
+          </a>
+        </p>
+      )}
 
       <div className="post-detail-extras">
         <div className="post-detail-stats">

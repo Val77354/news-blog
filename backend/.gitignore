@@ -8,3 +8,4 @@ uploads/
 pytest-cache-files-*/
 *.db.*
 backups/
+import_feeds.json

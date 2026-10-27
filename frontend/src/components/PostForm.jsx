@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { CATEGORIES, COUNTRIES, COUNTRY_FLAGS } from '../constants'
 import { uploadImage } from '../api/uploads'
+import { checkPost } from '../utils/validation'
+import FormField from './FormField'
 import ImagePicker from './ImagePicker'
 import './PostForm.css'
 
@@ -11,13 +13,26 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
   const [imageFile, setImageFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [checked, setChecked] = useState(false) // show errors as you type after the first save attempt
 
   function update(field) {
-    return (e) => setValues((v) => ({ ...v, [field]: e.target.value }))
+    return (e) => {
+      const next = { ...values, [field]: e.target.value }
+      setValues(next)
+      if (checked) setFieldErrors(checkPost(next, { categories: CATEGORIES, countries: COUNTRIES }))
+    }
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
+    const problems = checkPost(values, { categories: CATEGORIES, countries: COUNTRIES })
+    setChecked(true)
+    setFieldErrors(problems)
+    if (Object.keys(problems).length > 0) {
+      setError('Please fix the highlighted fields.')
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -36,19 +51,16 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
   }
 
   return (
-    <form className="post-form" onSubmit={handleSubmit}>
-      <label>
-        Title
-        <input value={values.title} onChange={update('title')} required />
-      </label>
+    <form className="post-form" onSubmit={handleSubmit} noValidate>
+      <FormField label="Title" error={fieldErrors.title}>
+        <input value={values.title} onChange={update('title')} maxLength={200} aria-invalid={!!fieldErrors.title} />
+      </FormField>
       <div className="post-form-row">
-        <label>
-          Author
-          <input value={values.author} onChange={update('author')} required />
-        </label>
-        <label>
-          Category
-          <select value={values.category} onChange={update('category')} required>
+        <FormField label="Author" error={fieldErrors.author} hint="Letters only, e.g. Anna O'Neil-Smith">
+          <input value={values.author} onChange={update('author')} maxLength={100} aria-invalid={!!fieldErrors.author} />
+        </FormField>
+        <FormField label="Category" error={fieldErrors.category}>
+          <select value={values.category} onChange={update('category')} aria-invalid={!!fieldErrors.category}>
             <option value="" disabled>
               Select a category
             </option>
@@ -58,10 +70,9 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
               </option>
             ))}
           </select>
-        </label>
-        <label>
-          Country
-          <select value={values.country} onChange={update('country')} required>
+        </FormField>
+        <FormField label="Country" error={fieldErrors.country}>
+          <select value={values.country} onChange={update('country')} aria-invalid={!!fieldErrors.country}>
             <option value="" disabled>
               Select a country
             </option>
@@ -71,12 +82,11 @@ export default function PostForm({ initialValues = EMPTY, onSubmit, submitLabel 
               </option>
             ))}
           </select>
-        </label>
+        </FormField>
       </div>
-      <label>
-        Content
-        <textarea value={values.content} onChange={update('content')} required />
-      </label>
+      <FormField label="Content" error={fieldErrors.content}>
+        <textarea value={values.content} onChange={update('content')} maxLength={50000} aria-invalid={!!fieldErrors.content} />
+      </FormField>
       <ImagePicker initialUrl={initialValues.image_url} onFileSelected={setImageFile} />
       <label>
         Visibility

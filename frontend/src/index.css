@@ -409,3 +409,33 @@ body::after {
   padding: 3px 10px;
   border-radius: 999px;
 }
+
+/* Form field errors and hints */
+.field-error {
+  color: #ff7a6b;
+  font-size: 0.82rem;
+}
+
+.field-hint {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.form-field.has-error input[aria-invalid='true'],
+.form-field.has-error select,
+.form-field.has-error textarea {
+  border-color: #ff7a6b;
+}
+
+.post-detail-source a {
+  color: var(--accent);
+}
+
+.import-result {
+  margin-top: var(--space-3, 32px);
+}
+
+.import-result ul {
+  line-height: 1.9;
+}

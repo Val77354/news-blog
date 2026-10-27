@@ -68,39 +68,72 @@ podcasts, and uploading images, needs the admin password. Log in at
 - Security headers on every response; CORS allows only `CORS_ORIGINS`.
 
 All options are listed in `backend/.env.example`. For production, set
-`COOKIE_SECURE=true`, `ENABLE_DOCS=false`, `CORS_ORIGINS` to your site address,
-and `VITE_API_URL` for the frontend build.
+`COOKIE_SECURE=true`, `ENABLE_DOCS=false`, and `SITE_URL`/`CORS_ORIGINS` to your site address
+(`VITE_API_URL` is only needed if the API is hosted separately).
 
 API docs (Swagger UI): http://localhost:8000/docs
 
-## Running the frontend
+## Running the website
+
+**One address for everything.** Build the frontend once, and the backend
+serves the website itself, so the site and the API live together:
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run build        # creates frontend/dist, which the backend serves
 ```
 
-App: http://localhost:5173
+Then open http://localhost:8000. The website, `/api/...`, `/feed.xml` and
+`/sitemap.xml` all come from the same server.
 
-The frontend expects the backend running on `http://localhost:8000` (CORS is
-already configured for `http://localhost:5173`).
+**While changing the frontend**, use the live-reloading dev server instead:
+
+```bash
+cd frontend
+npm run dev          # http://localhost:5173, forwards /api to the backend on :8000
+```
+
+## News import
+
+Logged in as admin, click **Import** in the top bar. Pick a suggested feed (BBC,
+The Guardian, France 24, DW) or paste any RSS/Atom feed address, choose a
+category and country, and the latest headlines arrive as **drafts**. Each one
+has a short summary and a "Read the original story" link. Review, edit and
+publish the ones you want.
+
+Only headlines and short summaries are taken, never whole articles: copying
+full articles from other sites would break their copyright. The same story is
+never imported twice. The importer refuses addresses on this computer or a
+private network.
+
+To collect news automatically, copy `backend/import_feeds.example.json` to
+`backend/import_feeds.json`, list your feeds, and run (or schedule)
+`python import_news.py`.
 
 ## API
 
+Everything is under `/api`:
+
 | Method | Path          | Description        |
 |--------|---------------|---------------------|
-| GET    | /posts        | List all posts      |
-| GET    | /posts/{id}   | Get one post        |
-| POST   | /posts        | Create a post (admin) |
-| PUT    | /posts/{id}   | Update a post (admin) |
-| DELETE | /posts/{id}   | Delete a post (admin) |
-| GET/POST/PUT/DELETE | /podcasts… | Same pattern for podcasts |
-| POST   | /uploads/image | Upload an image (admin) |
-| POST   | /auth/login, /auth/logout | Admin login / logout |
-| GET    | /auth/me      | Am I logged in?      |
+| GET    | /api/posts        | List posts (`category`, `countries`, `q`, `limit`, `offset`) |
+| GET    | /api/posts/{slug or id} | Get one post |
+| POST   | /api/posts        | Create a post (admin) |
+| PUT    | /api/posts/{id}   | Update a post (admin) |
+| DELETE | /api/posts/{id}   | Delete a post (admin) |
+| POST   | /api/posts/{id}/view | Count a view |
+| GET/POST/PUT/DELETE | /api/podcasts… | Same pattern for podcasts |
+| POST   | /api/uploads/image | Upload an image (admin) |
+| POST   | /api/import       | Import news from a feed as drafts (admin) |
+| POST   | /api/auth/login, /api/auth/logout | Admin login / logout |
+| GET    | /api/auth/me      | Am I logged in? |
+| GET    | /api/health       | Server status |
 
-List endpoints accept `limit` (max 100), `offset`, and `q` for search.
+Validation rules: titles need real words (at least 3 letters, one line);
+author and host names allow only letters, spaces and `. ' -`; text has
+length limits; links must be `http(s)://`. The forms check the same rules
+before sending, and the backend checks again.
 
 ## Design doc
 

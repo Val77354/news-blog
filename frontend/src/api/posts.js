@@ -4,6 +4,7 @@ export { API_URL }
 
 export function resolveImageUrl(imageUrl) {
   if (!imageUrl) return null
+  // Uploaded images are stored as /uploads/<file> and served at /api/uploads/<file>
   return imageUrl.startsWith('http') ? imageUrl : `${API_URL}${imageUrl}`
 }
 
