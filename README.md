@@ -109,7 +109,9 @@ private network.
 
 To collect news automatically, copy `backend/import_feeds.example.json` to
 `backend/import_feeds.json`, list your feeds, and run (or schedule)
-`python import_news.py`.
+`python import_news.py`. On this PC it runs automatically at 1:00, 7:00, 13:00
+and 19:00 (Windows Task Scheduler, "DailyCurrentNewsImport"); each run is
+recorded in `backend/import_news.log`.
 
 ## API
 

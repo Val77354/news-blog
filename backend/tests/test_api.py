@@ -382,3 +382,16 @@ def test_import_rejects_non_feeds_and_xml_bombs(admin, monkeypatch):
     bomb = b'<?xml version="1.0"?><!DOCTYPE r [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;">]><rss>&b;</rss>'
     _fake_download(monkeypatch, bomb)
     assert admin.post("/api/import", json=body, headers=CSRF).status_code == 400
+
+
+def test_import_reads_rss_1_0(admin, monkeypatch):
+    rdf = b"""<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
+  <channel rdf:about="https://dw.example/"><title>DW News</title></channel>
+  <item rdf:about="https://dw.example/a"><title>Berlin opens new rail link</title>
+    <link>https://dw.example/a</link><description>The line connects the airport to the city centre.</description></item>
+</rdf:RDF>"""
+    _fake_download(monkeypatch, rdf)
+    body = {"feed_url": "https://dw.example/rss", "category": "World", "country": "Germany"}
+    res = admin.post("/api/import", json=body, headers=CSRF).json()
+    assert [p["title"] for p in res["created"]] == ["Berlin opens new rail link"]

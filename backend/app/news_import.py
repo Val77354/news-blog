@@ -148,12 +148,13 @@ def parse_feed(data: bytes) -> Feed:
     except Exception:  # defusedxml raises several kinds of errors for bad or hostile XML
         raise FeedError("That address doesn't contain a valid RSS or Atom feed.")
 
-    if _local(root.tag) == "rss":  # RSS 2.0
+    if _local(root.tag) in ("rss", "RDF"):  # RSS 2.0, or the older RSS 1.0 ("RDF")
         channel = _child(root, "channel")
         if channel is None:
             raise FeedError("That RSS feed has no channel.")
         feed = Feed(title=_text(channel, "title"))
-        for item in channel:
+        # RSS 2.0 puts the stories inside <channel>; RSS 1.0 puts them next to it.
+        for item in [*channel, *root]:
             if _local(item.tag) == "item":
                 feed.items.append(FeedItem(
                     title=plain_text(_text(item, "title")),
