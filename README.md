@@ -30,6 +30,29 @@ uvicorn app.main:app --reload --port 8000
 
 Run the tests with `pip install -r requirements-dev.txt` then `pytest`.
 
+The database is created and upgraded automatically on startup (Alembic
+migrations in `backend/migrations/`). On this PC it lives outside OneDrive, in
+`C:\Users\Valeri\DailyCurrentData` (set in `backend/.env`), because syncing a
+live SQLite file can corrupt it.
+
+### Backups
+
+`python backup.py` saves a checked copy of the database plus the uploads. It
+runs every night at 3:00 through Windows Task Scheduler ("DailyCurrentBackup")
+and keeps the newest 14 copies in `OneDrive\DailyCurrentBackups`, so there's
+also a copy in the cloud. To restore, stop the backend and copy a backup over
+the database file.
+
+### Features
+- **Drafts:** choose "Draft" in the post form; only the admin can see drafts.
+- **Readable links:** `/posts/geneva-hosts-renewed-talks…` (old `/posts/12` links still work).
+- **Real view counts:** each visitor counts once per post per 30 minutes; your own visits aren't counted.
+- **Search:** SQLite full-text search; matches word starts, ignores accents, best matches first.
+- **RSS feed** at `/feed.xml` and **sitemap** at `/sitemap.xml` on the API.
+- **Images:** must be uploaded; links to images on other sites are refused (they let those sites track readers).
+
+Going live? See `docs/DEPLOYMENT.md`.
+
 ### Admin login and security
 
 Anyone can read the site, but creating, editing or deleting posts and
